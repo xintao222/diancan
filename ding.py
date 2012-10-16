@@ -21,24 +21,31 @@ with open ("local.html","r") as data:
 #all = soup.findAll(name = "ul", attrs = {"class":"all_dishes_list"})
 #print type(all)
 all = soup.html.body.contents[5].contents[5].contents[11].contents[1].contents[4]
-kfc = {}
+kfc = []
 all_list = all.findAll('ul',attrs={"class":"all_dishes_list"})
 for ul in all_list:
     for lis in ul.contents:
         if type(lis) != type(ul.contents[0]):
             print "========================================================"
-            cata = lis.find('h2').string
-            dish = {}
-            print cata
+            cate = lis.find('h2').string
+            menu = {}
+            dishes = []
+            menu["category"] = cate
+            print cate
             for li in lis.findAll('li'):
                 print "+++++++++++++++"
                 name = li.find('span',{"class":"dishes_name_r"}).string
-                price = li.find('span',{"class":"dishes_price_y"}).string
-                dish[name] = price
-                kfc[cata] = dish
-                #kfc["%s"%name]=
-kfc = helpers.json_encode(kfc)
-with open ('kfc.json',"w") as j:
+                price = li.find('span',{"class":"dishes_price"}).string
+                dish = {}
+                dish['name'] = name
+                dish['price'] = price
+                dishes.append(dish)
+            menu["dishes"] = dishes
+            menu = helpers.json_encode(menu)
+            print menu
+            kfc.append(menu)
+#print kfc
+with open ('kfc.list',"w") as j:
     j.write("%s"%kfc)
 
 '''
