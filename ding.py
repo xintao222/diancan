@@ -17,7 +17,7 @@ import urllib2, urllib
 with open ("local.html","r") as data:
     webdata = data.read()
 #webdata = urlopen("http://waimaiku.com/shops/detail/1029").read()
-    soup = BeautifulSoup(''.join(webdata))
+soup = BeautifulSoup(''.join(webdata))
 #all = soup.findAll(name = "ul", attrs = {"class":"all_dishes_list"})
 #print type(all)
 all = soup.html.body.contents[5].contents[5].contents[11].contents[1].contents[4]
@@ -42,6 +42,7 @@ for ul in all_list:
             menu["dishes"] = dishes
             print menu
             kfc.append(menu)
+kfc = helpers.json_encode(kfc)
 #print kfc
 with open ('kfc.list',"w") as j:
     j.write("%s"%kfc)
