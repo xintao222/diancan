@@ -14,15 +14,14 @@ from urllib import urlopen
 import httplib,urllib
 import sys
 import urllib2, urllib
-with open ("local.html","r") as data:
+import redis
+path = sys.argv[1]
+print path
+c = redis.Redis(host='127.0.0.1', port=6379, db=0)
+with open ("%s"%path,"r") as data:
     webdata = data.read()
-#webdata = urlopen("http://waimaiku.com/shops/detail/1029").read()
 soup = BeautifulSoup(''.join(webdata))
-#all = soup.findAll(name = "ul", attrs = {"class":"all_dishes_list"})
-#print type(all)
-#all = soup.html.body.contents[5].contents[5].contents[11].contents[1].contents[4]
 all = soup
-kfc = []
 all_list = all.findAll('ul',attrs={"class":"all_dishes_list"})
 for ul in all_list:
     for lis in ul.contents:
@@ -31,22 +30,70 @@ for ul in all_list:
             menu = {}
             dishes = []
             menu["category"] = cate
+            print cate
             for li in lis.findAll('li'):
                 name = li.find('span',{"class":"dishes_name_r"}).string
                 price = li.find('span',{"class":"dishes_price"}).string
                 price = int(float(price) * 100)
-#                print name
-#                print price
                 dish = {}
-                dish['name'] = name
+                dish['name'] = name.strip("...").strip("+")
                 dish['price'] = price
+                print dish['name']
+                print dish['price']
                 dishes.append(dish)
             menu["dishes"] = dishes
-#            print menu
-            kfc.append(menu)
-for menu in kfc:
-    print menu['category']
+            menu =  helpers.json_encode(menu)
+            #print menu
+            c.lpush("dinner:kfc",menu)
+            #kfc.append(menu)
+
+
+'''
+[
+    {
+        "category": "cate",
+        "dishes": [
+            {
+                "name": "name",
+                "price": "price"
+            },
+            {
+                "name": "name",
+                "price": "price"
+            }
+        ]
+    },
+    {
+        "category": "cate",
+        "dishes": [
+            {
+                "name": "name",
+                "price": "price"
+            },
+            {
+                "name": "name",
+                "price": "price"
+            }
+        ]
+    }
+]
+'''
+
+#li = c.lrange("dinner:kfc",0,-1)
+#for i in li:
+#    print type(i)
+#    #print i
+#    menu = helpers.json_decode(i)
+#    print type(menu)
+#    print menu['category']
+
+
+
+
 #kfc = helpers.json_encode(kfc)
-##print kfc
-#with open ('kfc.list',"w") as j:
-#    j.write("%s"%kfc)
+#kfc = helpers.json_decode(kfc)
+#for menu in kfc:
+#    print menu['category']
+#    for dish in menu['dishes']:
+#        print dish['name']
+
