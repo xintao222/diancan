@@ -5,11 +5,6 @@ import tornado.options
 from tornado import gen
 from tornado.options import define, options
 
-import brukva
-from brukva import adisp
-
-import database
-
 
 class IndexHandler(tornado.web.RequestHandler):
     def get(self):
