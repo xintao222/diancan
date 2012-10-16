@@ -43,5 +43,5 @@ for ul in all_list:
             print menu
             kfc.append(menu)
 #print kfc
-with open ('kfc.list.test',"w") as j:
+with open ('kfc.list',"w") as j:
     j.write("%s"%kfc)
