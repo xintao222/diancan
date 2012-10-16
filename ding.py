@@ -26,53 +26,22 @@ all_list = all.findAll('ul',attrs={"class":"all_dishes_list"})
 for ul in all_list:
     for lis in ul.contents:
         if type(lis) != type(ul.contents[0]):
-            print "========================================================"
             cate = lis.find('h2').string
             menu = {}
             dishes = []
             menu["category"] = cate
-            print cate
             for li in lis.findAll('li'):
-                print "+++++++++++++++"
                 name = li.find('span',{"class":"dishes_name_r"}).string
                 price = li.find('span',{"class":"dishes_price"}).string
+                price = int(float(price) * 100)
+                print price
                 dish = {}
                 dish['name'] = name
                 dish['price'] = price
                 dishes.append(dish)
             menu["dishes"] = dishes
-            menu = helpers.json_encode(menu)
             print menu
             kfc.append(menu)
 #print kfc
-with open ('kfc.list',"w") as j:
+with open ('kfc.list.test',"w") as j:
     j.write("%s"%kfc)
-
-'''
-<li class="dish_874838 odd " data_value="874838" id="dish_874838">
-<span class="dishes_name">
-<span class="dishes_name_r">雀巢美禄</span>
-<span class="dishes_name_for_order" style="display: none">雀巢美禄</span>
-</span>
-<i>
-<a class="buy_btn" data_value="874838" href="javascript:void(0)"></a>
-<span class="check_mark"></span>
-</i>
-<span class="dishes_price_y">7.5元</span>
-<span class="dishes_price">7.5</span>
-</li>
-'''
-#for i in soup.findAll(attrs = {"class":"itemUl"}):
-#    singer   = i.find('li', {"class":"songer"}).string
-#    url      = i.findAll(attrs = {"class":"downBtn"})[0]
-#    li = url['href'].split(":")[1]
-#    print li
-#    li = li.lstrip("commondown(")
-#    li = li.rstrip(");")
-#    li = li.replace("'","")
-#    li = li.split(",")
-#
-#    print li
-#    print "==========="
-#    data1.append(li)
-#print data1[2]
