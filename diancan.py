@@ -15,25 +15,11 @@ class IndexHandler(tornado.web.RequestHandler):
     def get(self):
         self.render('index.html')
 
-class BlogHandler(tornado.web.RequestHandler):
-    @tornado.web.asynchronous
-    @adisp.process
-    def get(self):
-        uid = self.get_argument('id');
-        url = self.get_argument('url');
-        c = database.AsyncRedis.client()
-        yield c.async.set('%s'%uid, url) 
-        self.finish(uid);
-
-
-    @tornado.web.asynchronous
-    @adisp.process
-    def post(self):
-        c = database.AsyncRedis.client()
-        title = self.get_argument('title')
-        content = self.get_argument('content')
-        yield c.async.set('test', 'hi') 
-        self.finish('create success')
+class DataHandler(tornado.web.RequestHandler):
+    def get(self,channel):
+        with open("%s.list"%channel) as f:
+            li = f.read()
+        self.finish(li)
 
 def main():
     define("port", default=8080, help="run on the given port", type=int)
@@ -42,7 +28,7 @@ def main():
     tornado.options.parse_command_line()
     application = tornado.web.Application([
         (r"/",              IndexHandler),
-        (r"/blog",          BlogHandler),
+        (r"/data/(.*)",          DataHandler),
     ], **settings)
     http_server = tornado.httpserver.HTTPServer(application)
     http_server.listen(options.port)
