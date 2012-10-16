@@ -16,7 +16,12 @@ for json in li:
     #json = eval(json)
     #c.lpush("dinner:kfc",json)
     word = json['category']
-    print word.decode('unicode')
+    unicode()
+    #print word.decode('utf-8')#.encode('utf-8')
     #for dish in json['dishes']:
     #    print dish['name']
     #    print dish['price']
+
+s = "\u65e9\u9910-\u70ed\u996e"
+print s.encode('gbk')
+print unicode(s,"utf-8")
