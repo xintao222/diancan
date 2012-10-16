@@ -43,6 +43,6 @@ for ul in all_list:
             print menu
             kfc.append(menu)
 kfc = helpers.json_encode(kfc)
-#print kfc
-with open ('kfc.list',"w") as j:
-    j.write("%s"%kfc)
+print kfc
+#with open ('kfc.list',"w") as j:
+#    j.write("%s"%kfc)

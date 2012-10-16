@@ -17,6 +17,8 @@ import urllib2, urllib
 import redis
 path = sys.argv[1]
 print path
+dinner = path.split('.')[0]
+print dinner
 c = redis.Redis(host='127.0.0.1', port=6379, db=0)
 with open ("%s"%path,"r") as data:
     webdata = data.read()
@@ -44,7 +46,7 @@ for ul in all_list:
             menu["dishes"] = dishes
             menu =  helpers.json_encode(menu)
             #print menu
-            c.lpush("dinner:kfc",menu)
+            c.lpush("dinner:%s"%dinner,menu)
             #kfc.append(menu)
 
 
