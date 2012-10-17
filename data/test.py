@@ -80,22 +80,3 @@ for ul in all_list:
     }
 ]
 '''
-
-#li = c.lrange("dinner:kfc",0,-1)
-#for i in li:
-#    print type(i)
-#    #print i
-#    menu = helpers.json_decode(i)
-#    print type(menu)
-#    print menu['category']
-
-
-
-
-#kfc = helpers.json_encode(kfc)
-#kfc = helpers.json_decode(kfc)
-#for menu in kfc:
-#    print menu['category']
-#    for dish in menu['dishes']:
-#        print dish['name']
-
