@@ -17,10 +17,10 @@ import urllib2, urllib
 with open ("local.html","r") as data:
     webdata = data.read()
 #webdata = urlopen("http://waimaiku.com/shops/detail/1029").read()
-soup = BeautifulSoup(''.join(webdata))
+all = BeautifulSoup(''.join(webdata))
 #all = soup.findAll(name = "ul", attrs = {"class":"all_dishes_list"})
 #print type(all)
-all = soup.html.body.contents[5].contents[5].contents[11].contents[1].contents[4]
+#all = soup.html.body.contents[5].contents[5].contents[11].contents[1].contents[4]
 kfc = []
 all_list = all.findAll('ul',attrs={"class":"all_dishes_list"})
 for ul in all_list:

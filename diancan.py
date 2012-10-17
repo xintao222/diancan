@@ -21,7 +21,9 @@ class DataHandler(tornado.web.RequestHandler):
         #return self.finish(str(li))
         data = []
         for i in li:
+            i = helpers.json_decode(i)
             data.append(i)
+        data = helpers.json_encode(data)
         return self.finish(data)
 
 def main():
