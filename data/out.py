@@ -19,7 +19,7 @@ data = []
 for i in li:
     #i = eval(i)
     #i = helpers.json_decode(i)
-    #print type(i)
+    print type(i)
     i = helpers.json_decode(i)
     #i = helpers.json_encode(i)
     #print type(i)
@@ -27,9 +27,42 @@ for i in li:
     data.append(i)
 data = helpers.json_encode(data)
 #print type(data)
-print data
+#print data
 print '========'
 #with open("%s.list"%channel) as f:
 #    a =  f.read()
 #    print type(a)
 #    print a
+'''
+{
+    "name": "肯德基",
+    "content": [
+        {
+            "category": "cate",
+            "dishes": [
+                {
+                    "name": "name",
+                    "price": "price"
+                },
+                {
+                    "name": "name",
+                    "price": "price"
+                }
+            ]
+        },
+        {
+            "category": "cate",
+            "dishes": [
+                {
+                    "name": "name",
+                    "price": "price"
+                },
+                {
+                    "name": "name",
+                    "price": "price"
+                }
+            ]
+        }
+    ]
+}
+'''

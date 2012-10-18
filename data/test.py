@@ -51,6 +51,39 @@ for ul in all_list:
 
 
 '''
+{
+    "name": "肯德基",
+    "content": [
+        {
+            "category": "cate",
+            "dishes": [
+                {
+                    "name": "name",
+                    "price": "price"
+                },
+                {
+                    "name": "name",
+                    "price": "price"
+                }
+            ]
+        },
+        {
+            "category": "cate",
+            "dishes": [
+                {
+                    "name": "name",
+                    "price": "price"
+                },
+                {
+                    "name": "name",
+                    "price": "price"
+                }
+            ]
+        }
+    ]
+}
+'''
+'''
 [
     {
         "category": "cate",
