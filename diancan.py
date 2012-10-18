@@ -25,7 +25,8 @@ class MainHandler(BaseHandler):
         email = tornado.escape.xhtml_escape(self.current_user["email"])
         self.write("Hello, " + name + ", my email is "+email)
 
-class AllHandler(tornado.web.RequestHandler):
+class AllHandler(BaseHandler):
+    @tornado.web.authenticated
     def get(self):
         c = redis.Redis(host='127.0.0.1', port=6379, db=1)
         li = c.lrange("dinner:all",0,-1)
@@ -55,7 +56,8 @@ class GoogleAuthLoginHandler(tornado.web.RequestHandler, tornado.auth.GoogleMixi
         self.set_secure_cookie("user", tornado.escape.json_encode(user))  
         self.redirect("/")                 
 
-class DataHandler(tornado.web.RequestHandler):
+class DataHandler(BaseHandler):
+    @tornado.web.authenticated
     def get(self,channel):
         c = redis.Redis(host='127.0.0.1', port=6379, db=1)
         li = c.lrange("dinner:data:%s"%channel,0,-1)
@@ -69,6 +71,14 @@ class DataHandler(tornado.web.RequestHandler):
         data = helpers.json_encode(data)
         return self.finish(data)
 
+class OrderHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        id = self.get_argument('id')
+        dish = self.get_argument('dish')
+        self.write('dear '+ id + ', your order is '+dish)
+
+    
 def main():
     define("port", default=8080, help="run on the given port", type=int)
     settings = {"debug": True, "template_path": "templates",
@@ -78,6 +88,7 @@ def main():
         (r"/",              MainHandler),
         (r"/login",              GoogleAuthLoginHandler),
         (r"/api/all",              AllHandler),
+        (r"/order",              OrderHandler),
         (r"/data/(.*)",          DataHandler),
     ], **settings)
     http_server = tornado.httpserver.HTTPServer(application)

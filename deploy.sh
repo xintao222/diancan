@@ -1,2 +1,2 @@
 #!/bin/bash
-python diancan.py --port=9000 1>diancan.log 2>&1 &
+python diancan.py --port=9000 1>log 2>&1 &
