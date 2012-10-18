@@ -6,7 +6,7 @@
 # Filename: grub.py
 # Description: 
 #=======================================
-import helpers
+#import helpers
 from bs4 import BeautifulSoup
 #import BeautifulSoup
 import re 
@@ -15,11 +15,21 @@ import httplib,urllib
 import sys
 import urllib2, urllib
 import redis
+
+import simplejson as json
+def json_encode(dict_data):
+    if not dict_data:
+        return json.dumps('')
+    try:
+        return json.dumps(dict_data, default=_json_handler)
+    except:
+        raise ValueError
+
 path = sys.argv[1]
 print path
 dinner = path.split('.')[0]
 print dinner
-c = redis.Redis(host='127.0.0.1', port=6379, db=0)
+c = redis.Redis(host='127.0.0.1', port=6379, db=1)
 with open ("%s"%path,"r") as data:
     webdata = data.read()
 soup = BeautifulSoup(''.join(webdata))
@@ -46,7 +56,7 @@ for ul in all_list:
             menu["dishes"] = dishes
             menu =  helpers.json_encode(menu)
             #print menu
-            c.lpush("dinner:%s"%dinner,menu)
+            c.lpush("dinner:data:%s"%dinner,menu)
             #kfc.append(menu)
 
 

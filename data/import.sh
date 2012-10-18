@@ -1,4 +1,5 @@
-for i in `ls *.html`
+for i in `ls done/*.html`
 do
-    python test.py $i
+    echo $i
+    #python test.py $i
 done
