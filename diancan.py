@@ -71,12 +71,17 @@ class DataHandler(BaseHandler):
         data = helpers.json_encode(data)
         return self.finish(data)
 
-class OrderHandler(BaseHandler):
-    @tornado.web.authenticated
+#class OrderHandler(BaseHandler):
+class OrderHandler(tornado.web.RequestHandler):
+    #@tornado.web.authenticated
     def get(self):
-        id = self.get_argument('id')
-        dish = self.get_argument('dish')
-        self.write('dear '+ id + ', your order is '+dish)
+        json = self.get_argument('json')
+        json = helpers.json_decode(json)
+        id = json['id']
+        dish = []
+        for order in json['order']:
+            dish.append(order['name'])
+        self.write('dear '+ id )
 
     
 def main():
