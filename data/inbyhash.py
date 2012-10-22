@@ -34,9 +34,10 @@ for di in dinner:
     print url
     json['name'] = name
     json['url'] = url
+    json['cname'] = di
     print json
     json = helpers.json_encode(json)
-    c.lpush("dinner:all",json)
+    c.lpush("dinner:list:all",json)
 
     #all['name']=
     #c.hset("dinner:data:%s"%name,"name",rname)

@@ -29,7 +29,7 @@ class AllHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
         c = redis.Redis(host='127.0.0.1', port=6379, db=1)
-        li = c.lrange("dinner:all",0,-1)
+        li = c.lrange("dinner:list:all",0,-1)
         data = []
         for i in li:
             i = helpers.json_decode(i)
