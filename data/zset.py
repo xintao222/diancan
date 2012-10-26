@@ -19,19 +19,8 @@ import time
 
 def main():
     c = redis.Redis(host='127.0.0.1', port=6379, db=1)
-    json='{"id": "zhida@wandoujia.com","order": [{"name":"麦乐鸡套餐","from":"麦当劳","number": "1"},{"name":"可乐","from":"麦当劳","number": "1"}]}'
-'''
-[
-    {
-        "dish": "可乐",
-        "number": "2",
-        "people": [
-            "刘志达",
-            "kai"
-        ]
-    }
-]
-'''
+    json='{"id": "zhida@wandoujia.com","order": [{"name":"麦乐鸡套餐","from":"麦当劳","number": "1", "price": "1650"},{"name":"可乐","from":"麦当劳","number": "1","price": "800"}]}'
+
     json = helpers.json_decode(json)
     id = json['id']
     #c.zadd("dinner:user:pop",id,1)
@@ -82,25 +71,60 @@ def main():
         '''
         添加每个人每天的菜单
         '''
-        #li = helpers.json_encode(i)
+        li = helpers.json_encode(i)
         #print li
-        #c.lpush("dinner:%s:%s"%(str_time,json['id']),li)
+        c.lpush("dinner:%s:%s"%(str_time,json['id']),li)
         '''
         添加每个餐馆每天的总订单
         '''
-        c.lpush("dinner:%s:%s:%s"%(str_time,rname,name))
+        #c.lpush("dinner:%s:%s:%s"%(str_time,rname,name))
         
 
 def order():
     c = redis.Redis(host='127.0.0.1', port=6379, db=1)
     str_time = time.strftime("%Y%m%d", time.localtime())
-    #li = c.keys("dinner:%s:*"%str_time)
-    #for i in li:
-    #    _li = c.lrange(i,0,-1)
-    #    for _i in _li:
+    #str_time = "20121022"
+
+    all_list = []
     all = c.lrange("dinner:list:all",0,-1)
     for _all in all:
-        print _all
+        _all = helpers.json_decode(_all)
+        eval("%s={'from': '%s'}"%(_all['cname'],_all['name']))
+        
+
+    li = c.keys("dinner:%s:*"%str_time)
+    for i in li:
+        id = i.split(':')[2]
+        print id
+        _li = c.lrange(i,0,-1)
+        for _i in _li:
+            _i = helpers.json_decode(_i)
+            print _i['from']
+            print _i['name']
+            print _i['number']
+            print _i['price']
+            eval("%s['order']=[]"%_i['from'])
+            order = []
+            dish = {}
+            dish
+'''
+[
+    {
+        "from": "麦当劳",
+        "order": [
+            {
+                "dish": "可乐",
+                "number": "2",
+                "people": [
+                    "刘志达",
+                    "苗"
+                ]
+            }
+        ]
+    }
+]
+'''
+
 
 if __name__ == '__main__':
     #main()
