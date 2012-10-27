@@ -19,7 +19,7 @@ import time
 
 def main():
     c = redis.Redis(host='127.0.0.1', port=6379, db=1)
-    json='{"id": "zhida@wandoujia.com","order": [{"name":"麦乐鸡套餐","from":"麦当劳","number": "1", "price": "1650"},{"name":"可乐","from":"麦当劳","number": "1","price": "800"}]}'
+    json='{"id": "zhida@wandoujia.com","order": [{"name":"麦乐鸡套餐","from":"mac","number": "1", "price": "1650"},{"name":"可乐","from":"kfc","number": "1","price": "800"}]}'
 
     json = helpers.json_decode(json)
     id = json['id']
@@ -90,6 +90,7 @@ def order():
     for _all in all:
         _all = helpers.json_decode(_all)
         eval("%s={'from': '%s'}"%(_all['cname'],_all['name']))
+        eval("%s['order']=[]"%(_all['cname']))
         
 
     li = c.keys("dinner:%s:*"%str_time)
@@ -99,14 +100,13 @@ def order():
         _li = c.lrange(i,0,-1)
         for _i in _li:
             _i = helpers.json_decode(_i)
-            print _i['from']
-            print _i['name']
-            print _i['number']
-            print _i['price']
-            eval("%s['order']=[]"%_i['from'])
-            order = []
-            dish = {}
-            dish
+            froms   = _i['from']
+            name    = _i['name']
+            number  = _i['number']
+            price   = _i['price']
+            eval("orders = %s['order']"%_i['from'])
+            order = {}
+            order['dish']=""
 '''
 [
     {
@@ -135,13 +135,13 @@ if __name__ == '__main__':
     "order": [
         {
             "name": "麦乐鸡套餐",
-            "from": "麦当劳",
+            "from": "kfc",
             "number": "1"
             "price": "1650"
         },
         {
             "name": "可乐",
-            "from": "麦当劳",
+            "from": "mac",
             "number": "1"
         }
     ]
