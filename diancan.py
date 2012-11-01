@@ -84,6 +84,7 @@ class OrderHandler(tornado.web.RequestHandler):
         cu = cx.cursor()
         json = self.get_argument('json')
         json = helpers.json_decode(json)
+        self.write(json)
         id = json['id']
         '''
         统计活跃用户
@@ -103,6 +104,7 @@ class OrderHandler(tornado.web.RequestHandler):
             #print i
             rname = i['from']
             name = i['name']
+            froms = rname
             number = int(i['number'])
             price  = int(i['price'])
             day = int(str_time)
