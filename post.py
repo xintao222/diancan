@@ -18,5 +18,7 @@ print data
 #json='{"id": "zhida@wandoujia.com","order": [{"name":"麦乐鸡套餐","from":"麦当劳","number": "1"},{"name":"可乐","from":"麦当劳","number": "1"}]}'
 #f = urllib2.urlopen("http://fan.wandoulabs.com/order?json=%s"%json)
 #f = urllib2.urlopen("http://fan.wandoulabs.com/api/all")
-print "http://fan.wandoulabs.com/order?json=%s"%data
+url = "http://fan.wandoulabs.com/order?json=%s"%data
+resp = urllib2.open(url).read()
+print resp
 #print f.read()
