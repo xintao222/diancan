@@ -8,6 +8,8 @@ import redis
 import helpers
 import tornado.auth
 import tornado.escape
+import sqlite3
+import time
 
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
@@ -75,13 +77,67 @@ class DataHandler(BaseHandler):
 class OrderHandler(tornado.web.RequestHandler):
     #@tornado.web.authenticated
     def get(self):
+        c = redis.Redis(host='127.0.0.1', port=6379, db=1)
+        cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
+        cu = cx.cursor()
         json = self.get_argument('json')
         json = helpers.json_decode(json)
         id = json['id']
-        dish = []
-        for order in json['order']:
-            dish.append(order['name'])
-        self.write('dear '+ id )
+        '''
+        统计活跃用户
+        '''
+        #c.zadd("dinner:user:pop",id,1)
+        user_list = c.zrange("dinner:user:pop",0,-1)
+        #print user_list
+        if id in user_list:
+            c.zincrby("dinner:user:pop",id,1)
+        else:
+            c.zadd("dinner:user:pop",id,1)
+        
+        str_time = time.strftime("%Y%m%d", time.localtime())
+        #print "dinner:%s:%s"%(str_time,json['id'])
+        for i in json['order']:
+            #print "order:"
+            #print i
+            rname = i['from']
+            name = i['name']
+            number = int(i['number'])
+            price  = int(i['price'])
+            day = int(str_time)
+            #print rname
+            '''
+            统计流行的餐厅
+            '''
+            c.zadd("dinner:from:pop",rname,1)
+            from_list = c.zrange("dinner:from:pop",0,-1)
+            #print "from_list:"
+            #print from_list
+            if rname.encode('utf8') in from_list:
+                c.zincrby("dinner:from:pop",rname,1)
+            else:
+                c.zadd("dinner:from:pop",rname,1)
+            '''
+            统计流行的菜品
+            '''    
+            c.zadd("dinner:dish:pop",rname,1)
+            dish_list = c.zrange("dinner:dish:pop",0,-1)
+            print "dish_list"
+            print dish_list
+            if name.encode('utf8') in dish_list:
+                c.zincrby("dinner:dish:pop",name,1)
+            else:
+                c.zadd("dinner:dish:pop",name,1)
+            '''
+            添加每个人每天的菜单
+            '''
+            li = helpers.json_encode(i)
+            c.lpush("dinner:%s:%s"%(str_time,json['id']),li)
+            cu.execute('insert into orders (id,froms,dish,number,price,day) values("%s","%s","%s",%d,%d,%d)'%(id,froms,name,number,price,day))
+            cx.commit()
+            self.write('insert into orders (id,froms,dish,number,price,day) values("%s","%s","%s",%d,%d,%d)'%(id,froms,name,number,price,day))
+
+
+
 
     
 def main():
