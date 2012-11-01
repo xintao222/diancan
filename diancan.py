@@ -6,12 +6,14 @@ import tornado.web
 import tornado.options
 from tornado import gen
 from tornado.options import define, options
-import redis
 import helpers
 import tornado.auth
 import tornado.escape
+
+import redis
 import sqlite3
 import time
+import base64
 
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
@@ -84,38 +86,33 @@ class OrderHandler(tornado.web.RequestHandler):
         cu = cx.cursor()
         json = self.get_argument('json')
         json = helpers.json_decode(json)
-        self.write(json)
         id = json['id']
         '''
         统计活跃用户
         '''
-        #c.zadd("dinner:user:pop",id,1)
         user_list = c.zrange("dinner:user:pop",0,-1)
-        #print user_list
         if id in user_list:
             c.zincrby("dinner:user:pop",id,1)
         else:
             c.zadd("dinner:user:pop",id,1)
         
         str_time = time.strftime("%Y%m%d", time.localtime())
-        #print "dinner:%s:%s"%(str_time,json['id'])
         for i in json['order']:
-            #print "order:"
-            #print i
             rname = i['from']
             name = i['name']
             froms = rname
+            #dish = base64.encodestring(name).strip()
+            dish = name
+            #dish = unicode(name)
+            #dish = base64.encodestring(dish).strip()
             number = int(i['number'])
             price  = int(i['price'])
             day = int(str_time)
-            #print rname
             '''
             统计流行的餐厅
             '''
             c.zadd("dinner:from:pop",rname,1)
             from_list = c.zrange("dinner:from:pop",0,-1)
-            #print "from_list:"
-            #print from_list
             if rname.encode('utf8') in from_list:
                 c.zincrby("dinner:from:pop",rname,1)
             else:
@@ -125,8 +122,6 @@ class OrderHandler(tornado.web.RequestHandler):
             '''    
             c.zadd("dinner:dish:pop",rname,1)
             dish_list = c.zrange("dinner:dish:pop",0,-1)
-            print "dish_list"
-            print dish_list
             if name.encode('utf8') in dish_list:
                 c.zincrby("dinner:dish:pop",name,1)
             else:
@@ -136,9 +131,9 @@ class OrderHandler(tornado.web.RequestHandler):
             '''
             li = helpers.json_encode(i)
             c.lpush("dinner:%s:%s"%(str_time,json['id']),li)
-            cu.execute('insert into orders (id,froms,dish,number,price,day) values("%s","%s","%s",%d,%d,%d)'%(id,froms,name,number,price,day))
-            cx.commit()
-            self.write('insert into orders (id,froms,dish,number,price,day) values("%s","%s","%s",%d,%d,%d)'%(id,froms,name,number,price,day))
+            #cu.execute('insert into orders (id,froms,dish,number,price,day) values("%s","%s","%s",%d,%d,%d)'%(id,froms,dish,number,price,day))
+            #cx.commit()
+            self.write('insert into orders (id,froms,dish,number,price,day) values("%s","%s","%s",%d,%d,%d)'%(id,froms,dish,number,price,day))
 
 
 
