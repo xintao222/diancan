@@ -14,8 +14,8 @@ def see():
         for j in i:
             print "++++++++"
             if type(j) == type("a"):
-                #print j
-                #print j.decode("utf-8").encode("gbk")
+                print repr(j)
+                print j.decode("utf-8")
 
 
 def orders():

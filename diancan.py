@@ -108,11 +108,14 @@ class OrderHandler(tornado.web.RequestHandler):
             name = i['name']
             self.write(repr(name))
             froms = rname
-            #dish = name
-            dish = base64.encodestring(name).strip()
+            dish = name
             
             #dish = name.encode('utf-8')
             self.write(repr(dish))
+            self.write(dish)
+            self.write(repr(dish.encode("utf-8")))
+            dish = base64.encodestring(name).strip()
+
             number = int(i['number'])
             price  = int(i['price'])
             day = int(str_time)
