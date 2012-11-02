@@ -7,20 +7,24 @@
 # Description: 
 #=======================================
 import urllib2
-import simplejson as json
+import urllib
 import time
 import json
 
 data='{"id":"zhida@wandoujia.com","order":[{"name":"麦乐鸡套餐","from":"mac","number":"1","price":"1650"},{"name":"可乐","from":"kfc","number":"2","price":"800"}]}'
-print data
-data = urllib2
+#_data = {"json":data}
+#print urllib2.quote(data)
 #data = json.dumps(data)
+#print dir(urllib)
+#__data = urllib.urlencode(data)
+__data = urllib2.quote(data)
+#print __data
+
+url = "http://fan.wandoulabs.com/order?json=%s"%__data
+print url
 #print data
 #json='{"id": "zhida@wandoujia.com","order": [{"name":"麦乐鸡套餐","from":"麦当劳","number": "1"},{"name":"可乐","from":"麦当劳","number": "1"}]}'
-#f = urllib2.urlopen("http://fan.wandoulabs.com/order?json=%s"%json)
+print urllib2.urlopen("http://fan.wandoulabs.com/order?json=%s"%__data).read()
 #f = urllib2.urlopen("http://fan.wandoulabs.com/api/all")
-url = "http://fan.wandoulabs.com/order?json=%s"%data
-print url
 #resp = urllib2.urlopen(url).read()
 #print resp
-#print f.read()

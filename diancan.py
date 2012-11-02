@@ -108,7 +108,9 @@ class OrderHandler(tornado.web.RequestHandler):
             name = i['name']
             self.write(repr(name))
             froms = rname
-            dish = name
+            #dish = name
+            dish = base64.encodestring(name).strip()
+            
             #dish = name.encode('utf-8')
             self.write(repr(dish))
             number = int(i['number'])
