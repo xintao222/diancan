@@ -14,6 +14,11 @@ import redis
 import sqlite3
 import time
 import base64
+import urllib2
+#import sys
+#reload(sys)
+#sys.setdefaultencoding("utf8")
+
 
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
@@ -83,6 +88,7 @@ class OrderHandler(tornado.web.RequestHandler):
     def get(self):
         c = redis.Redis(host='127.0.0.1', port=6379, db=1)
         cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
+        cx.text_factory=str
         cu = cx.cursor()
         json = self.get_argument('json')
         json = helpers.json_decode(json)
@@ -100,11 +106,11 @@ class OrderHandler(tornado.web.RequestHandler):
         for i in json['order']:
             rname = i['from']
             name = i['name']
+            self.write(repr(name))
             froms = rname
-            #dish = base64.encodestring(name).strip()
             dish = name
-            #dish = unicode(name)
-            #dish = base64.encodestring(dish).strip()
+            #dish = name.encode('utf-8')
+            self.write(repr(dish))
             number = int(i['number'])
             price  = int(i['price'])
             day = int(str_time)
@@ -113,7 +119,7 @@ class OrderHandler(tornado.web.RequestHandler):
             '''
             c.zadd("dinner:from:pop",rname,1)
             from_list = c.zrange("dinner:from:pop",0,-1)
-            if rname.encode('utf8') in from_list:
+            if rname in from_list:
                 c.zincrby("dinner:from:pop",rname,1)
             else:
                 c.zadd("dinner:from:pop",rname,1)
@@ -122,7 +128,8 @@ class OrderHandler(tornado.web.RequestHandler):
             '''    
             c.zadd("dinner:dish:pop",rname,1)
             dish_list = c.zrange("dinner:dish:pop",0,-1)
-            if name.encode('utf8') in dish_list:
+            #if name.encode('utf-8') in dish_list:
+            if name.encode('utf-8') in dish_list:
                 c.zincrby("dinner:dish:pop",name,1)
             else:
                 c.zadd("dinner:dish:pop",name,1)
@@ -132,11 +139,9 @@ class OrderHandler(tornado.web.RequestHandler):
             li = helpers.json_encode(i)
             c.lpush("dinner:%s:%s"%(str_time,json['id']),li)
             #cu.execute('insert into orders (id,froms,dish,number,price,day) values("%s","%s","%s",%d,%d,%d)'%(id,froms,dish,number,price,day))
-            #cx.commit()
-            self.write('insert into orders (id,froms,dish,number,price,day) values("%s","%s","%s",%d,%d,%d)'%(id,froms,dish,number,price,day))
-
-
-
+            cu.execute('insert into orders (id,froms,dish,number,price,day) values(?,?,?,?,?,?)',(id,froms,dish,number,price,day))
+            cx.commit()
+            #self.write('insert into orders (id,froms,dish,number,price,day) values("%s","%s","%s",%d,%d,%d)'%(id,froms,dish,number,price,day))
 
     
 def main():
