@@ -107,18 +107,10 @@ class OrderHandler(tornado.web.RequestHandler):
         for i in json['order']:
             rname = i['from']
             name = i['name']
-            self.write(repr(name))
-            froms = rname
-            dish = name
-            
-            #dish = name.encode('utf-8')
-            #self.write(repr(dish))
-            #self.write(dish)
-            #self.write(repr(dish.encode("utf-8")))
 
+            bid = base64.encodestring(id.encode("utf-8")).strip()
+            froms = base64.encodestring(rname.encode("utf-8")).strip()
             dish = base64.encodestring(name.encode("utf-8")).strip()
-            self.write(dish)
-            
             number = int(i['number'])
             price  = int(i['price'])
             day = int(str_time)
@@ -146,11 +138,8 @@ class OrderHandler(tornado.web.RequestHandler):
             '''
             li = helpers.json_encode(i)
             c.lpush("dinner:%s:%s"%(str_time,json['id']),li)
-            #cu.execute('insert into orders (id,froms,dish,number,price,day) values("%s","%s","%s",%d,%d,%d)'%(id,froms,dish,number,price,day))
-            cu.execute('insert into orders (id,froms,dish,number,price,day) values(?,?,?,?,?,?)',(id,froms,dish,number,price,day))
+            cu.execute('insert into orders (id,froms,dish,number,price,day) values(?,?,?,?,?,?)',(bid,froms,dish,number,price,day))
             cx.commit()
-            #self.write('insert into orders (id,froms,dish,number,price,day) values("%s","%s","%s",%d,%d,%d)'%(id,froms,dish,number,price,day))
-
     
 def main():
     define("port", default=8080, help="run on the given port", type=int)

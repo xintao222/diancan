@@ -2,6 +2,7 @@
 #-*-coding:utf-8-*-
 import sqlite3
 import helpers
+import base64
 def see():
     cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
     #cx.text_factory=str
@@ -11,7 +12,16 @@ def see():
     for i in cu.execute('select * from orders'):
         print i
         for j in i:
-            print j.encode('utf-8')
+            if type(j) == type("a"):
+                print base64.decodestring(j).decode('utf-8')
+                #print j.encode('utf-8')
+            else:
+                print j
+    cu.execute('select froms,sum(o.price*o.number) from orders o  group by froms')
+    print cu.fetchall()
+    cu.execute('select froms,dish,sum(number) from orders o  group by froms,dish ')
+    print cu.fetchall()
+
     #print cu.fetchall()
     #for i in cu.fetchall():
     #    print "========="
