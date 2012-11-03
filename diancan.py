@@ -88,7 +88,8 @@ class OrderHandler(tornado.web.RequestHandler):
     def get(self):
         c = redis.Redis(host='127.0.0.1', port=6379, db=1)
         cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
-        cx.text_factory=str
+        #cx.text_factory=str
+        #cx.text_factory = sqlite.OptimizedUnicode
         cu = cx.cursor()
         json = self.get_argument('json')
         json = helpers.json_decode(json)
@@ -111,11 +112,13 @@ class OrderHandler(tornado.web.RequestHandler):
             dish = name
             
             #dish = name.encode('utf-8')
-            self.write(repr(dish))
-            self.write(dish)
-            self.write(repr(dish.encode("utf-8")))
-            dish = base64.encodestring(name).strip()
+            #self.write(repr(dish))
+            #self.write(dish)
+            #self.write(repr(dish.encode("utf-8")))
 
+            dish = base64.encodestring(name.encode("utf-8")).strip()
+            self.write(dish)
+            
             number = int(i['number'])
             price  = int(i['price'])
             day = int(str_time)

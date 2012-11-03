@@ -4,19 +4,26 @@ import sqlite3
 import helpers
 def see():
     cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
+    #cx.text_factory=str
     cx.text_factory=str
+    #cx.text_factory=sqlite3.OptimizedUnicode
     cu = cx.cursor()
-    cu.execute('select * from orders')
-    #print cu.fetchall()
-    for i in cu.fetchall():
-        print "========="
+    for i in cu.execute('select * from orders'):
         print i
         for j in i:
-            print "++++++++"
-            if type(j) == type("a"):
-                print repr(j)
-                print j.decode("utf-8")
+            print j.encode('utf-8')
+    #print cu.fetchall()
+    #for i in cu.fetchall():
+    #    print "========="
+    #    for j in i:
+    #        print "++++++++"
+    #        print j
 
+def dell():
+    cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
+    cu = cx.cursor()
+    cu.execute('delete from orders')
+    cx.commit()
 
 def orders():
     json='{"id": "zhida@wandoujia.com","order": [{"name":"麦乐鸡套餐","from":"mac","number": "1", "price": "1650"},{"name":"可乐","from":"kfc","number": "2","price": "800"}]}'
@@ -48,3 +55,4 @@ def orders():
 if __name__ == '__main__':
     #orders()
     see()
+    #dell()
