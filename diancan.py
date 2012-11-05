@@ -140,6 +140,11 @@ class OrderHandler(tornado.web.RequestHandler):
             c.lpush("dinner:%s:%s"%(str_time,json['id']),li)
             cu.execute('insert into orders (id,froms,dish,number,price,day) values(?,?,?,?,?,?)',(bid,froms,dish,number,price,day))
             cx.commit()
+#class OrderHandler(BaseHandler):
+class AllOrderHandler(tornado.web.RequestHandler):
+    #@tornado.web.authenticated
+    def get(self):
+        self.finish("all")
     
 def main():
     define("port", default=8080, help="run on the given port", type=int)
@@ -151,6 +156,7 @@ def main():
         (r"/login",              GoogleAuthLoginHandler),
         (r"/api/all",              AllHandler),
         (r"/order",              OrderHandler),
+        (r"/allorder",              AllOrderHandler),
         (r"/data/(.*)",          DataHandler),
     ], **settings)
     http_server = tornado.httpserver.HTTPServer(application)
