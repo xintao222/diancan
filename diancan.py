@@ -23,7 +23,11 @@ import urllib2
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
         user_json = self.get_secure_cookie("user")
-        return tornado.escape.json_decode(user_json)
+        if user_json:
+            return tornado.escape.json_decode(user_json)
+        else:
+            raise tornado.web.HTTPError(403)
+            #self.redirect("/login")
 
 class IndexHandler(tornado.web.RequestHandler):
     def get(self):
@@ -191,12 +195,19 @@ class UserHandler(BaseHandler):
     def get(self):
         name = tornado.escape.xhtml_escape(self.current_user["name"])
         email = tornado.escape.xhtml_escape(self.current_user["email"])
-        user = {}
-        user['name']  = name
-        user['email'] = email
-        user = helpers.json_encode(user)
-        #self.write("Hello, " + name + ", my email is "+email)
-        self.finish(user)
+        if name == "error":
+            self.finish("Error")
+        else:
+            user = {}
+            user['name']  = name
+            user['email'] = email
+            user = helpers.json_encode(user)
+            #self.write("Hello, " + name + ", my email is "+email)
+            self.finish(user)
+
+    #def post(self):
+    #    json = self.get_argument('json')
+    #    json = helpers.json_decode(json)
 
 def main():
     define("port", default=8080, help="run on the given port", type=int)
