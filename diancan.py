@@ -140,24 +140,77 @@ class OrderHandler(tornado.web.RequestHandler):
             c.lpush("dinner:%s:%s"%(str_time,json['id']),li)
             cu.execute('insert into orders (id,froms,dish,number,price,day) values(?,?,?,?,?,?)',(bid,froms,dish,number,price,day))
             cx.commit()
-#class OrderHandler(BaseHandler):
+#class AllOrderHandler(BaseHandler):
 class AllOrderHandler(tornado.web.RequestHandler):
     #@tornado.web.authenticated
     def get(self):
-        self.finish("all")
-    
+        cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
+        cx.text_factory=str
+        cu = cx.cursor()
+        str_time = time.strftime("%Y%m%d", time.localtime())
+
+        all_froms = []
+        for i in cu.execute('select froms from orders where day = "%s"'%str_time):
+            all_froms.append(i[0])
+
+        all_froms = list(set(all_froms))
+        all_list = []
+        for i in all_froms:
+            #self.write("%s"%i)
+            all = {}
+            froms = i
+            all['from'] = base64.decodestring(froms).decode('utf-8')
+            #self.write(froms)
+            #self.write(base64.decodestring(i[0]).decode('utf-8'))
+            cu.execute('select sum(o.price*o.number) from orders o where froms = "%s"'%froms)
+            price = cu.fetchall()[0][0]
+            all['price'] = price
+            #self.write("%d"%price)
+            orders = []
+            for j in cu.execute('select dish,sum(number) from orders o where froms = "%s" group by froms,dish'%froms):
+                order = {}
+                dish = j[0]
+                order['dish'] = base64.decodestring(j[0]).decode('utf-8')
+                number = j[1]
+                order['number'] = number
+                people = []
+                for k in cu.execute('select id from orders where day = "%s" and froms = "%s" and dish = "%s"'%(str_time,froms,dish)):
+                    people.append(base64.decodestring(k[0]).decode('utf-8'))
+                people = list(set(people))
+                order['people'] = people
+                #self.write("%s,number:%s"%(dish,number))
+                orders.append(order)
+            all['order'] = orders
+            all_list.append(all)
+
+        all_list = helpers.json_encode(all_list)
+        self.finish(all_list)
+
+class UserHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        name = tornado.escape.xhtml_escape(self.current_user["name"])
+        email = tornado.escape.xhtml_escape(self.current_user["email"])
+        user = {}
+        user['name']  = name
+        user['email'] = email
+        user = helpers.json_encode(user)
+        #self.write("Hello, " + name + ", my email is "+email)
+        self.finish(user)
+
 def main():
     define("port", default=8080, help="run on the given port", type=int)
     settings = {"debug": True, "template_path": "templates",
            "cookie_secret": "z1DAVh+WTvyqpWGmOtJCQLETQYUznEuYskSF062J0To="}
     tornado.options.parse_command_line()
     application = tornado.web.Application([
-        (r"/",              MainHandler),
-        (r"/login",              GoogleAuthLoginHandler),
-        (r"/api/all",              AllHandler),
-        (r"/order",              OrderHandler),
-        (r"/allorder",              AllOrderHandler),
-        (r"/data/(.*)",          DataHandler),
+        (r"/",                  MainHandler),
+        (r"/login",             GoogleAuthLoginHandler),
+        (r"/api/all",           AllHandler),
+        (r"/order",             OrderHandler),
+        (r"/api/allorder",      AllOrderHandler),
+        (r"/api/user",          UserHandler),
+        (r"/data/(.*)",         DataHandler),
     ], **settings)
     http_server = tornado.httpserver.HTTPServer(application)
     http_server.listen(options.port)
