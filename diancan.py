@@ -201,7 +201,7 @@ class UserHandler(BaseHandler):
 def main():
     define("port", default=8080, help="run on the given port", type=int)
     settings = {"debug": True, "template_path": "templates",
-           "cookie_secret": "z1DAVh+WTvyqpWGmOtJCQLETQYUznEuYskSF062J0To="}
+            "cookie_secret": "z1DAVh+WTvyqpWGmOtJCQLETQYUznEuYskSF062J0To=","login_url":"/login",}
     tornado.options.parse_command_line()
     application = tornado.web.Application([
         (r"/",                  MainHandler),
