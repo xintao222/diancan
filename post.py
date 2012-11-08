@@ -11,20 +11,26 @@ import urllib
 import time
 import json
 
-data='{"id":"liuzhida@wandoujia.com","order":[{"name":"麦乐鸡套餐","from":"肯德基","number":"1","price":"1650"},{"name":"可乐","from":"肯德基","number":"2","price":"800"}]}'
-#_data = {"json":data}
 #print urllib2.quote(data)
-#data = json.dumps(data)
-#print dir(urllib)
 #__data = urllib.urlencode(data)
-__data = urllib2.quote(data)
-#print __data
+def getorder(data):
+    data='{"id":"liuzhida@wandoujia.com","order":[{"name":"麦乐鸡套餐","from":"肯德基","number":"1","price":"1650"},{"name":"可乐","from":"肯德基","number":"2","price":"800"}]}'
+    __data = urllib2.quote(data)
+    
+    url = "http://fan.wandoulabs.com/order?json=%s"%__data
+    print url
+    print urllib2.urlopen("http://fan.wandoulabs.com/order?json=%s"%__data).read()
 
-url = "http://fan.wandoulabs.com/order?json=%s"%__data
-print url
-#print data
-#json='{"id": "zhida@wandoujia.com","order": [{"name":"麦乐鸡套餐","from":"肯德基","number": "1"},{"name":"可乐","from":"肯德基","number": "1"}]}'
-print urllib2.urlopen("http://fan.wandoulabs.com/order?json=%s"%__data).read()
-#f = urllib2.urlopen("http://fan.wandoulabs.com/api/all")
-#resp = urllib2.urlopen(url).read()
-#print resp
+def getuser():
+    print urllib2.urlopen("http://fan.wandoulabs.com/api/user").read()
+
+def postuser():
+    data = {}
+    data['id']="zhida@wandoujia.com"
+    data['name']="刘志达"
+    __data = urllib2.quote(data)
+    u = urllib2.urlopen("http://fan.wandoulabs.com/api/user",__data)
+    print u.read()
+
+if __name__ == '__main__':
+    getuser()
