@@ -39,8 +39,10 @@ class MainHandler(BaseHandler):
             return
         #name = tornado.escape.xhtml_escape(self.current_user)
         #self.write("Hello, " + name)
-        name = tornado.escape.xhtml_escape(self.current_user["name"])
-        email = tornado.escape.xhtml_escape(self.current_user["email"])
+        #self.current_user = tornado.escape.json_decode(self.current_user)
+        self.user = tornado.escape.json_decode(self.current_user)
+        name = tornado.escape.xhtml_escape(self.user["name"])
+        email = tornado.escape.xhtml_escape(self.user["email"])
         self.write("Hello, " + name + ", my email is "+email)
 
 class AllHandler(tornado.web.RequestHandler):
@@ -151,6 +153,7 @@ class OrderHandler(tornado.web.RequestHandler):
             c.lpush("dinner:%s:%s"%(str_time,json['id']),li)
             cu.execute('insert into orders (id,froms,dish,number,price,day) values(?,?,?,?,?,?)',(bid,froms,dish,number,price,day))
             cx.commit()
+            return
 
 #class AllOrderHandler(BaseHandler):
 class AllOrderHandler(tornado.web.RequestHandler):
@@ -196,7 +199,7 @@ class AllOrderHandler(tornado.web.RequestHandler):
 
         all_list = helpers.json_encode(all_list)
         self.set_header("Content-Type", "application/json")
-        self.finish(all_list)
+        return self.finish(all_list)
 
 class UserHandler(BaseHandler):
     @tornado.web.authenticated
@@ -205,22 +208,24 @@ class UserHandler(BaseHandler):
             raise tornado.web.HTTPError(403)
             return
         c = redis.Redis(host='127.0.0.1', port=6379, db=1)
-        email = tornado.escape.xhtml_escape(self.current_user["email"])
+        self.user = tornado.escape.json_decode(self.current_user)
+        email = tornado.escape.xhtml_escape(self.user["email"])
+        #email = tornado.escape.xhtml_escape(self.current_user["email"])
         #name = tornado.escape.xhtml_escape(self.current_user["name"])
+        #name = tornado.escape.xhtml_escape(self.user["name"])
         name = c.get("dinner:cname:%s"%email)
-        self.write(name)
         user = {}
         user['name']  = name
         user['email'] = email
         user = helpers.json_encode(user)
         #self.write("Hello, " + name + ", my email is "+email)
         self.set_header("Content-Type", "application/json")
-        self.finish(user)
+        return self.finish(user)
 
     def post(self):
-        json = self.get_argument('json')
-        json = helpers.json_decode(json)
-        self.finish(json)
+        id = self.get_argument('id')
+        name = self.get_argument('name')
+        return self.finish(id)
 
 def main():
     define("port", default=8080, help="run on the given port", type=int)
