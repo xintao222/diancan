@@ -28,9 +28,12 @@ def postuser():
     data = {}
     data['id']="zhida@wandoujia.com"
     data['name']="刘志达"
-    __data = urllib2.quote(data)
-    u = urllib2.urlopen("http://fan.wandoulabs.com/api/user",__data)
+    #data = json.dumps(data)
+    data = urllib.urlencode(data)
+    #data = urllib2.quote(data)
+    print data
+    u = urllib2.urlopen("http://fan.wandoulabs.com/api/user",data)
     print u.read()
 
 if __name__ == '__main__':
-    getuser()
+    postuser()
