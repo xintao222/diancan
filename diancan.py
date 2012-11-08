@@ -15,9 +15,6 @@ import sqlite3
 import time
 import base64
 import urllib2
-#import sys
-#reload(sys)
-#sys.setdefaultencoding("utf8")
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -140,6 +137,7 @@ class OrderHandler(tornado.web.RequestHandler):
             c.lpush("dinner:%s:%s"%(str_time,json['id']),li)
             cu.execute('insert into orders (id,froms,dish,number,price,day) values(?,?,?,?,?,?)',(bid,froms,dish,number,price,day))
             cx.commit()
+
 #class AllOrderHandler(BaseHandler):
 class AllOrderHandler(tornado.web.RequestHandler):
     #@tornado.web.authenticated
@@ -178,7 +176,6 @@ class AllOrderHandler(tornado.web.RequestHandler):
                     people.append(base64.decodestring(k[0]).decode('utf-8'))
                 people = list(set(people))
                 order['people'] = people
-                #self.write("%s,number:%s"%(dish,number))
                 orders.append(order)
             all['order'] = orders
             all_list.append(all)
