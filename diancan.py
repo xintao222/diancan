@@ -19,12 +19,13 @@ import urllib2
 
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
-        user_json = self.get_secure_cookie("user")
-        if user_json:
-            return tornado.escape.json_decode(user_json)
-        else:
-            raise tornado.web.HTTPError(403)
-            #self.redirect("/login")
+        return self.get_secure_cookie("user")
+        #user_json = self.get_secure_cookie("user")
+        #if user_json:
+        #    return tornado.escape.json_decode(user_json)
+        #else:
+        #    raise tornado.web.HTTPError(403)
+        #    #self.redirect("/login")
 
 class IndexHandler(tornado.web.RequestHandler):
     def get(self):
@@ -33,6 +34,11 @@ class IndexHandler(tornado.web.RequestHandler):
 class MainHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
+        if not self.current_user:
+            self.redirect("/login")
+            return
+        #name = tornado.escape.xhtml_escape(self.current_user)
+        #self.write("Hello, " + name)
         name = tornado.escape.xhtml_escape(self.current_user["name"])
         email = tornado.escape.xhtml_escape(self.current_user["email"])
         self.write("Hello, " + name + ", my email is "+email)
@@ -195,9 +201,14 @@ class AllOrderHandler(tornado.web.RequestHandler):
 class UserHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
+        if not self.current_user:
+            raise tornado.web.HTTPError(403)
+            return
         c = redis.Redis(host='127.0.0.1', port=6379, db=1)
-        name = tornado.escape.xhtml_escape(self.current_user["name"])
         email = tornado.escape.xhtml_escape(self.current_user["email"])
+        #name = tornado.escape.xhtml_escape(self.current_user["name"])
+        name = c.get("dinner:cname:%s"%email)
+        self.write(name)
         user = {}
         user['name']  = name
         user['email'] = email
