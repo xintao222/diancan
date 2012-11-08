@@ -225,7 +225,10 @@ class UserHandler(BaseHandler):
     def post(self):
         id = self.get_argument('id')
         name = self.get_argument('name')
-        return self.finish(id)
+        c = redis.Redis(host='127.0.0.1', port=6379, db=1)
+        c.set("dinner:cname:%s"%id,name)
+        cname = c.get("dinner:cname:%s"%id)
+        return self.finish(cname)
 
 def main():
     define("port", default=8080, help="run on the given port", type=int)
