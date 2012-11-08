@@ -40,8 +40,8 @@ class MainHandler(BaseHandler):
         email = tornado.escape.xhtml_escape(self.current_user["email"])
         self.write("Hello, " + name + ", my email is "+email)
 
-class AllHandler(BaseHandler):
-    @tornado.web.authenticated
+class AllHandler(tornado.web.RequestHandler):
+    #@tornado.web.authenticated
     def get(self):
         c = redis.Redis(host='127.0.0.1', port=6379, db=1)
         li = c.lrange("dinner:list:all",0,-1)
@@ -50,6 +50,8 @@ class AllHandler(BaseHandler):
             i = helpers.json_decode(i)
             data.append(i)
         data = helpers.json_encode(data)
+        self.set_header("Content-Type", "application/json")
+        #self.set_header("Access-Control-Allow-Origin", "*")
         return self.finish(data)
 
 class GoogleAuthLoginHandler(tornado.web.RequestHandler, tornado.auth.GoogleMixin):  
@@ -71,8 +73,9 @@ class GoogleAuthLoginHandler(tornado.web.RequestHandler, tornado.auth.GoogleMixi
         self.set_secure_cookie("user", tornado.escape.json_encode(user))  
         self.redirect("/")                 
 
-class DataHandler(BaseHandler):
-    @tornado.web.authenticated
+#class DataHandler(BaseHandler):
+class DataHandler(tornado.web.RequestHandler):
+    #@tornado.web.authenticated
     def get(self,channel):
         c = redis.Redis(host='127.0.0.1', port=6379, db=1)
         li = c.lrange("dinner:data:%s"%channel,0,-1)
@@ -84,6 +87,7 @@ class DataHandler(BaseHandler):
             i = helpers.json_decode(i)
             data.append(i)
         data = helpers.json_encode(data)
+        self.set_header("Content-Type", "application/json")
         return self.finish(data)
 
 #class OrderHandler(BaseHandler):
@@ -188,26 +192,27 @@ class AllOrderHandler(tornado.web.RequestHandler):
             all_list.append(all)
 
         all_list = helpers.json_encode(all_list)
+        self.set_header("Content-Type", "application/json")
         self.finish(all_list)
 
 class UserHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
+        c = redis.Redis(host='127.0.0.1', port=6379, db=1)
         name = tornado.escape.xhtml_escape(self.current_user["name"])
         email = tornado.escape.xhtml_escape(self.current_user["email"])
-        if name == "error":
-            self.finish("Error")
-        else:
-            user = {}
-            user['name']  = name
-            user['email'] = email
-            user = helpers.json_encode(user)
-            #self.write("Hello, " + name + ", my email is "+email)
-            self.finish(user)
+        user = {}
+        user['name']  = name
+        user['email'] = email
+        user = helpers.json_encode(user)
+        #self.write("Hello, " + name + ", my email is "+email)
+        self.set_header("Content-Type", "application/json")
+        self.finish(user)
 
-    #def post(self):
-    #    json = self.get_argument('json')
-    #    json = helpers.json_decode(json)
+    def post(self):
+        json = self.get_argument('json')
+        json = helpers.json_decode(json)
+        self.finish(json)
 
 def main():
     define("port", default=8080, help="run on the given port", type=int)
