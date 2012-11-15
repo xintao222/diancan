@@ -6,45 +6,67 @@ import base64
 import time
 def see():
     cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
-    #cx.text_factory=str
     cx.text_factory=str
-    #cx.text_factory=sqlite3.OptimizedUnicode
     cu = cx.cursor()
     str_time = time.strftime("%Y%m%d", time.localtime())
-    #all_froms = []
-    #for i in cu.execute('select froms,dish from orders where day = "%s"'%str_time):
-    #    print i
-    #    all_froms.append(i[0])
 
-    #print all_froms
-    #print list(set(all_froms))
-    froms = "6IKv5b635Z+6"
-    dish = "6bqm5LmQ6bih5aWX6aSQ"
-    li= []
-    for i in cu.execute('select id from orders where day = "%s" and froms = "%s" and dish = "%s"'%(str_time,froms,dish)):
-        print i[0]
-        li.append(i[0])
-
-    print li
-    print list(set(li))
-
-    cu.execute('select id from orders where day = "%s" and froms = "%s" and dish = "%s"'%(str_time,froms,dish))
-    print cu.fetchall()
-    #for i in cu.execute('select * from orders'):
-    #    print i
+    #for i in cu.execute('select * from orders where day = "%s"'%(str_time)):
     #    for j in i:
     #        if type(j) == type("a"):
     #            print base64.decodestring(j).decode('utf-8')
-    #            #print j.encode('utf-8')
     #        else:
     #            print j
-    #cu.execute('select froms,sum(o.price*o.number) from orders o  group by froms')
-    #print cu.fetchall()
-    #a = "6bqm5b2T5Yqz"
-    #cu.execute('select froms,sum(o.price*o.number) from orders o where froms = "%s" group by froms'%a)
-    #print cu.fetchall()
-    #cu.execute('select froms,dish,sum(number) from orders o  group by froms,dish ')
-    #print cu.fetchall()
+
+    all_froms = []
+    for i in cu.execute('select froms from orders where day = "%s"'%str_time):
+        all_froms.append(i[0])
+
+    all_froms = list(set(all_froms))
+    all_list = []
+    for i in all_froms:
+        #self.write("%s"%i)
+        all = {}
+        froms = i 
+        all['from'] = base64.decodestring(froms).decode('utf-8')
+        print all['from']
+        #self.write(froms)
+        #self.write(base64.decodestring(i[0]).decode('utf-8'))
+        cu.execute('select sum(o.price*o.number) from orders o where o.froms = "%s" and o.day = "%s"'%(froms,str_time))
+        price = cu.fetchall()[0][0]
+        all['price'] = price
+        print all['price']
+        cu.execute('select dish,number from orders where froms = "%s" and day = "%s"'%(froms,str_time))
+        #self.write("%d"%price)
+        print cu.fetchall()
+        orders = []
+        print "---------------"
+        for j in cu.execute('select dish,number from orders where froms = "%s" and day = "%s"'%(froms,str_time)):
+            print j
+            order = {}
+            dish = j[0]
+            order['dish'] = base64.decodestring(j[0]).decode('utf-8')
+            print order['dish']
+            number = j[1]
+            order['number'] = number
+            print order['number']
+            people = []
+            cu.execute('select id from orders where day = "%s" and froms = "%s" and dish = "%s"'%(str_time,froms,dish))
+            print cu.fetchall()
+            #for k in cu.execute('select id from orders where day = "%s" and froms = "%s" and dish = "%s"'%(str_time,froms,dish)):
+            #    people.append(base64.decodestring(k[0]).decode('utf-8'))
+            #people = list(set(people))
+            #order['people'] = people
+            #print order['people']
+            print "+++++++++++++"
+            orders.append(order)
+        print "===================="
+        all['order'] = orders
+        all_list.append(all)
+        #cu.execute('select dish from orders o where froms = "%s"'%froms)
+        #cu.execute('select dish from orders where froms = "%s" group by dish'%froms)  
+        #print cu.fetchall()
+
+    all_list = helpers.json_encode(all_list)
 
 
     #print cu.fetchall()

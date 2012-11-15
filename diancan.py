@@ -98,13 +98,14 @@ class DataHandler(tornado.web.RequestHandler):
 #class OrderHandler(BaseHandler):
 class OrderHandler(tornado.web.RequestHandler):
     #@tornado.web.authenticated
-    def get(self):
+    def post(self):
         c = redis.Redis(host='127.0.0.1', port=6379, db=1)
         cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
         #cx.text_factory=str
         #cx.text_factory = sqlite.OptimizedUnicode
         cu = cx.cursor()
         json = self.get_argument('json')
+        json = urllib2.unquote(json)
         json = helpers.json_decode(json)
         id = json['id']
         '''
@@ -132,7 +133,7 @@ class OrderHandler(tornado.web.RequestHandler):
             '''
             c.zadd("dinner:from:pop",rname,1)
             from_list = c.zrange("dinner:from:pop",0,-1)
-            if rname in from_list:
+            if rname.encode('utf-8') in from_list:
                 c.zincrby("dinner:from:pop",rname,1)
             else:
                 c.zadd("dinner:from:pop",rname,1)
@@ -153,7 +154,13 @@ class OrderHandler(tornado.web.RequestHandler):
             c.lpush("dinner:%s:%s"%(str_time,json['id']),li)
             cu.execute('insert into orders (id,froms,dish,number,price,day) values(?,?,?,?,?,?)',(bid,froms,dish,number,price,day))
             cx.commit()
-            return
+        #self.set_header("Access-Control-Allow-Origin", "*")
+        return self.finish("ok")
+
+class LogoutHandler(BaseHandler):
+    def get(self):
+        self.clear_cookie("user")
+        self.redirect("/")
 
 #class AllOrderHandler(BaseHandler):
 class AllOrderHandler(tornado.web.RequestHandler):
@@ -177,12 +184,12 @@ class AllOrderHandler(tornado.web.RequestHandler):
             all['from'] = base64.decodestring(froms).decode('utf-8')
             #self.write(froms)
             #self.write(base64.decodestring(i[0]).decode('utf-8'))
-            cu.execute('select sum(o.price*o.number) from orders o where froms = "%s"'%froms)
+            cu.execute('select sum(o.price*o.number) from orders o where o.day = "%s" and o.froms = "%s"'%(str_time,froms))
             price = cu.fetchall()[0][0]
             all['price'] = price
             #self.write("%d"%price)
             orders = []
-            for j in cu.execute('select dish,sum(number) from orders o where froms = "%s" group by froms,dish'%froms):
+            for j in cu.execute('select dish,sum(number) from orders where day = "%s" and froms = "%s" group by dish'%(str_time,froms)):
                 order = {}
                 dish = j[0]
                 order['dish'] = base64.decodestring(j[0]).decode('utf-8')
@@ -202,7 +209,7 @@ class AllOrderHandler(tornado.web.RequestHandler):
         return self.finish(all_list)
 
 class UserHandler(BaseHandler):
-    @tornado.web.authenticated
+    #@tornado.web.authenticated
     def get(self):
         if not self.current_user:
             raise tornado.web.HTTPError(403)
@@ -220,24 +227,33 @@ class UserHandler(BaseHandler):
         user = helpers.json_encode(user)
         #self.write("Hello, " + name + ", my email is "+email)
         self.set_header("Content-Type", "application/json")
+        #self.set_header("Access-Control-Allow-Origin", "*")
         return self.finish(user)
 
     def post(self):
         id = self.get_argument('id')
         name = self.get_argument('name')
-        c = redis.Redis(host='127.0.0.1', port=6379, db=1)
-        c.set("dinner:cname:%s"%id,name)
+        if not name:
+            c.delete("dinner:cname:%s"%id)
+        else:
+            c = redis.Redis(host='127.0.0.1', port=6379, db=1)
+            c.set("dinner:cname:%s"%id,name)
         cname = c.get("dinner:cname:%s"%id)
-        return self.finish(cname)
+        user = {}
+        user['name']  = cname
+        user = helpers.json_encode(user)
+        self.set_header("Content-Type", "application/json")
+        return self.finish(user)
 
 def main():
     define("port", default=8080, help="run on the given port", type=int)
     settings = {"debug": True, "template_path": "templates",
-            "cookie_secret": "z1DAVh+WTvyqpWGmOtJCQLETQYUznEuYskSF062J0To=","login_url":"/login",}
+            "cookie_secret": "z1DAVh+WTvyqpWGmOtJCQLETQYUznEuYskSF062J0To=",}
     tornado.options.parse_command_line()
     application = tornado.web.Application([
         (r"/",                  MainHandler),
         (r"/login",             GoogleAuthLoginHandler),
+        (r"/logout",            LogoutHandler),
         (r"/api/all",           AllHandler),
         (r"/order",             OrderHandler),
         (r"/api/allorder",      AllOrderHandler),
