@@ -35,12 +35,12 @@ def see():
         price = cu.fetchall()[0][0]
         all['price'] = price
         print all['price']
-        cu.execute('select dish,number from orders where froms = "%s" and day = "%s"'%(froms,str_time))
+        cu.execute('select dish,number from orders where froms = "%s" and day = "%s" group by dish'%(froms,str_time))
         #self.write("%d"%price)
         print cu.fetchall()
         orders = []
         print "---------------"
-        for j in cu.execute('select dish,number from orders where froms = "%s" and day = "%s"'%(froms,str_time)):
+        for j in cu.execute('select dish,number from orders where froms = "%s" and day = "%s" group by dish'%(froms,str_time)):
             print j
             order = {}
             dish = j[0]
@@ -50,8 +50,8 @@ def see():
             order['number'] = number
             print order['number']
             people = []
-            cu.execute('select id from orders where day = "%s" and froms = "%s" and dish = "%s"'%(str_time,froms,dish))
-            print cu.fetchall()
+            #cu.execute('select id from orders where day = "%s" and froms = "%s" and dish = "%s"'%(str_time,froms,dish))
+            #print cu.fetchall()
             #for k in cu.execute('select id from orders where day = "%s" and froms = "%s" and dish = "%s"'%(str_time,froms,dish)):
             #    people.append(base64.decodestring(k[0]).decode('utf-8'))
             #people = list(set(people))
