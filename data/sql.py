@@ -35,12 +35,17 @@ def see():
         price = cu.fetchall()[0][0]
         all['price'] = price
         print all['price']
-        cu.execute('select dish,number from orders where froms = "%s" and day = "%s" group by dish'%(froms,str_time))
-        #self.write("%d"%price)
-        print cu.fetchall()
+        #cu.execute('select dish,number from orders where froms = "%s" and day = "%s" group by dish'%(froms,str_time))
+        ##self.write("%d"%price)
+        #print cu.fetchall()
         orders = []
         print "---------------"
-        for j in cu.execute('select dish,number from orders where froms = "%s" and day = "%s" group by dish'%(froms,str_time)):
+        li = cu.execute('select dish,sum(number) from orders where froms = "%s" and day = "%s" group by dish'%(froms,str_time))
+        #li = cu.fetchall()
+        print li
+        #print len(li)
+        print "&&&&&&&&&&&&&"
+        for j in li:
             print j
             order = {}
             dish = j[0]
@@ -50,8 +55,11 @@ def see():
             order['number'] = number
             print order['number']
             people = []
-            #cu.execute('select id from orders where day = "%s" and froms = "%s" and dish = "%s"'%(str_time,froms,dish))
-            #print cu.fetchall()
+
+            sql = 'select id from orders where day = "%s" and froms = "%s" and dish = "%s"'%(str_time,froms,dish)
+            print sql
+            cu.execute(sql)
+            print cu.fetchall()
             #for k in cu.execute('select id from orders where day = "%s" and froms = "%s" and dish = "%s"'%(str_time,froms,dish)):
             #    people.append(base64.decodestring(k[0]).decode('utf-8'))
             #people = list(set(people))
@@ -81,6 +89,11 @@ def dell():
     cu = cx.cursor()
     cu.execute('delete from orders')
     cx.commit()
+
+def dell():
+    cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
+    cu = cx.cursor()
+    cu.execute('delete from orders')
 
 def orders():
     json='{"id": "zhida@wandoujia.com","order": [{"name":"麦乐鸡套餐","from":"mac","number": "1", "price": "1650"},{"name":"可乐","from":"kfc","number": "2","price": "800"}]}'

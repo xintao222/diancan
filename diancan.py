@@ -27,9 +27,16 @@ class BaseHandler(tornado.web.RequestHandler):
         #    raise tornado.web.HTTPError(403)
         #    #self.redirect("/login")
 
+#class IndexHandler(BaseHandler):
 class IndexHandler(tornado.web.RequestHandler):
+    #@tornado.web.authenticated
     def get(self):
         self.render('index.html')
+
+#class AIndexHandler(tornado.web.RequestHandler):
+#    @tornado.web.authenticated
+#    def get(self):
+#        self.render('index.html')
 
 class MainHandler(BaseHandler):
     @tornado.web.authenticated
@@ -65,10 +72,10 @@ class GoogleAuthLoginHandler(tornado.web.RequestHandler, tornado.auth.GoogleMixi
         if self.get_argument("openid.mode", None):  
             self.get_authenticated_user(self.async_callback(self._on_auth))  
             return  
-        else:  
-            global _referer  
-            # may redirect to other user's referer pages  
-            _referer = self.get_argument("referer", "/")  
+        #else:  
+        #    global _referer  
+        #    # may redirect to other user's referer pages  
+        #    _referer = self.get_argument("referer", "/")  
   
         self.authenticate_redirect()  
   
@@ -76,7 +83,7 @@ class GoogleAuthLoginHandler(tornado.web.RequestHandler, tornado.auth.GoogleMixi
         if not user:  
             raise tornado.web.HTTPError(500, "Google auth failed")  
         self.set_secure_cookie("user", tornado.escape.json_encode(user))  
-        self.redirect("/")                 
+        self.redirect("/")
 
 #class DataHandler(BaseHandler):
 class DataHandler(tornado.web.RequestHandler):
@@ -172,7 +179,8 @@ class AllOrderHandler(tornado.web.RequestHandler):
         str_time = time.strftime("%Y%m%d", time.localtime())
 
         all_froms = []
-        for i in cu.execute('select froms from orders where day = "%s"'%str_time):
+        cu.execute('select froms from orders where day = "%s"'%str_time)
+        for i in cu.fetchall():
             all_froms.append(i[0])
 
         all_froms = list(set(all_froms))
@@ -189,14 +197,16 @@ class AllOrderHandler(tornado.web.RequestHandler):
             all['price'] = price
             #self.write("%d"%price)
             orders = []
-            for j in cu.execute('select dish,sum(number) from orders where day = "%s" and froms = "%s" group by dish'%(str_time,froms)):
+            cu.execute('select dish,sum(number) from orders where day = "%s" and froms = "%s" group by dish'%(str_time,froms))
+            for j in cu.fetchall():
                 order = {}
                 dish = j[0]
                 order['dish'] = base64.decodestring(j[0]).decode('utf-8')
                 number = j[1]
                 order['number'] = number
                 people = []
-                for k in cu.execute('select id from orders where day = "%s" and froms = "%s" and dish = "%s"'%(str_time,froms,dish)):
+                cu.execute('select id from orders where day = "%s" and froms = "%s" and dish = "%s"'%(str_time,froms,dish))
+                for k in cu.fetchall():
                     people.append(base64.decodestring(k[0]).decode('utf-8'))
                 people = list(set(people))
                 order['people'] = people
@@ -209,7 +219,7 @@ class AllOrderHandler(tornado.web.RequestHandler):
         return self.finish(all_list)
 
 class UserHandler(BaseHandler):
-    #@tornado.web.authenticated
+    @tornado.web.authenticated
     def get(self):
         if not self.current_user:
             raise tornado.web.HTTPError(403)
@@ -222,7 +232,10 @@ class UserHandler(BaseHandler):
         #name = tornado.escape.xhtml_escape(self.user["name"])
         name = c.get("dinner:cname:%s"%email)
         user = {}
-        user['name']  = name
+        if name:
+            user['name']  = name
+        else:
+            user['name']  = ""
         user['email'] = email
         user = helpers.json_encode(user)
         #self.write("Hello, " + name + ", my email is "+email)
@@ -240,18 +253,32 @@ class UserHandler(BaseHandler):
             c.set("dinner:cname:%s"%id,name)
         cname = c.get("dinner:cname:%s"%id)
         user = {}
-        user['name']  = cname
+        if cname:
+            user['name']  = cname
+        else:
+            user['name']  = ""
+        user['email'] = id
         user = helpers.json_encode(user)
         self.set_header("Content-Type", "application/json")
         return self.finish(user)
 
+class NotFoundHandler(tornado.web.RequestHandler):
+    def prepare(self):
+        NOTFOUND_404 = "404.html" # 404文件地址
+        #if os.path.exists(NOTFOUND_404):
+            #self.set_status(404) # 设 404 状态,浏览器可能会跳转到自己定义的找不到页面,要想全部显示一样就不要设置此状态
+        self.render(NOTFOUND_404, url = self.request.full_url())
+        #else:
+        #    self.send_error(404)
+
 def main():
     define("port", default=8080, help="run on the given port", type=int)
-    settings = {"debug": True, "template_path": "templates",
+    settings = {"debug": True, "template_path": "templates","static_path": "static", "login_url": "/login",
             "cookie_secret": "z1DAVh+WTvyqpWGmOtJCQLETQYUznEuYskSF062J0To=",}
     tornado.options.parse_command_line()
     application = tornado.web.Application([
-        (r"/",                  MainHandler),
+        (r"/",                  IndexHandler),
+        #(r"/l",                 AIndexHandler),
         (r"/login",             GoogleAuthLoginHandler),
         (r"/logout",            LogoutHandler),
         (r"/api/all",           AllHandler),
@@ -259,6 +286,7 @@ def main():
         (r"/api/allorder",      AllOrderHandler),
         (r"/api/user",          UserHandler),
         (r"/data/(.*)",         DataHandler),
+        (r"/.*",                NotFoundHandler), 
     ], **settings)
     http_server = tornado.httpserver.HTTPServer(application)
     http_server.listen(options.port)
