@@ -145,7 +145,7 @@
             <div class="large-logo"></div>
             <h2>喂<span><script>document.write(localStorage.getItem('user-display-name') || '豌豆');</script></span>！</h2>
             <div class="transform-container" data-bind="css: welcomeStatus">
-              <div class="btn btn-primary btn-large greeting" data-bind="text: '订饭了，' + user.name()"></div>
+              <div class="btn btn-primary btn-large greeting" data-bind="text: '订饭了，' + (user.name() || '豌豆')"></div>
               <div class="btn btn-primary btn-large loading">LOADING...</div>
               <a href="http://fan.wandoulabs.com/login" class="btn btn-primary btn-large signin">
                 <i class="icon-google-plus-sign icon-large icon-white"></i> Google Account 登录
