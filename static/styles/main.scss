@@ -87,16 +87,16 @@ body.loading .indicator {
 .order {
   width: 300px;
   padding: 0;
-  .btn-group {
+  & > div {
     display: block;
     margin: 0 auto;
-    @include display-box;
+    @include clearfix;
     .btn {
       @include box-sizing(border-box);
-      display: block;
-      width: 30%;
+      width: 145px;
+      float: right;
       &:nth-child(1) {
-        width: 40%;
+        float: left;
       }
     }
   }
