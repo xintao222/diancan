@@ -33,11 +33,6 @@ class IndexHandler(tornado.web.RequestHandler):
     def get(self):
         self.render('index.html')
 
-#class AIndexHandler(tornado.web.RequestHandler):
-#    @tornado.web.authenticated
-#    def get(self):
-#        self.render('index.html')
-
 class MainHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
@@ -264,12 +259,8 @@ class UserHandler(BaseHandler):
 
 class NotFoundHandler(tornado.web.RequestHandler):
     def prepare(self):
-        NOTFOUND_404 = "404.html" # 404文件地址
-        #if os.path.exists(NOTFOUND_404):
-            #self.set_status(404) # 设 404 状态,浏览器可能会跳转到自己定义的找不到页面,要想全部显示一样就不要设置此状态
+        NOTFOUND_404 = "404.html"
         self.render(NOTFOUND_404, url = self.request.full_url())
-        #else:
-        #    self.send_error(404)
 
 def main():
     define("port", default=8080, help="run on the given port", type=int)
@@ -278,7 +269,6 @@ def main():
     tornado.options.parse_command_line()
     application = tornado.web.Application([
         (r"/",                  IndexHandler),
-        #(r"/l",                 AIndexHandler),
         (r"/login",             GoogleAuthLoginHandler),
         (r"/logout",            LogoutHandler),
         (r"/api/all",           AllHandler),
