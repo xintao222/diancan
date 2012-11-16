@@ -110,6 +110,8 @@ class OrderHandler(tornado.web.RequestHandler):
         json = urllib2.unquote(json)
         json = helpers.json_decode(json)
         id = json['id']
+        if id.split("@")[1] != "wandoujia.com":
+            return self.finish("ok")
         '''
         统计活跃用户
         '''
@@ -233,9 +235,7 @@ class UserHandler(BaseHandler):
             user['name']  = ""
         user['email'] = email
         user = helpers.json_encode(user)
-        #self.write("Hello, " + name + ", my email is "+email)
         self.set_header("Content-Type", "application/json")
-        #self.set_header("Access-Control-Allow-Origin", "*")
         return self.finish(user)
 
     def post(self):

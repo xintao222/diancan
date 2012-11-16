@@ -10,10 +10,13 @@ import helpers
 import redis
 c = redis.Redis(host='127.0.0.1', port=6379, db=1)
 dinner = c.keys("dinner:data:*")
+c.delete("dinner:list:all")
 for di in dinner:
     json = {}
     print di
     di = di.split(":")[2]
+    if di == "hong":
+        continue
     _name = {
                 "dou"    :  "小豆面馆",
                 "meiming":  "没名生煎",
@@ -27,6 +30,8 @@ for di in dinner:
                 "pizza"  :  "必胜客",
                 "zheng"  :  "正一味",
                 "zhen"   :  "真功夫",
+                "xiao"   :  "三笑",
+                #"hong"   :  "鸿毛饺子",
             }
     name = _name['%s'%di]
     print name

@@ -20,6 +20,7 @@ import helpers
 def hong():
     c = redis.Redis(host='127.0.0.1', port=6379, db=1)
     dinner = "hong"
+    c.delete("dinner:data:hong")
     menu={}
     dishes=[]
     with open("hong.data","r") as f:
@@ -50,6 +51,7 @@ def inputmenu(path):
     dinner = path.split('.')[0]
     print dinner
     c = redis.Redis(host='127.0.0.1', port=6379, db=1)
+    c.delete("dinner:data:%s"%dinner)
     with open ("%s"%path,"r") as data:
         webdata = data.read()
     soup = BeautifulSoup(''.join(webdata))
@@ -76,7 +78,7 @@ def inputmenu(path):
                 menu["dishes"] = dishes
                 menu = helpers.json_encode(menu)
                 #print menu
-                if u"早点" in cate or u"饮品" in cate or u"早餐" in cate or u"饮料" in cate:
+                if u"早点" in cate or u"饮品" in cate or u"早餐" in cate or u"饮料" in cate or u"三人" in cate or u"10人" in cate or u"午餐" in cate or u"宵夜" in cate or u"双人" in cate or u"夜宵" in cate or u"匹萨" in cate:
                     print cate
                     print "--------------"
                     continue
@@ -84,13 +86,8 @@ def inputmenu(path):
                     c.lpush("dinner:data:%s"%dinner,menu)
                     print "dinner:data:%s"%dinner
                     print "++++++++++++++"
-                    
-
-
-                #with open("%s.json"%path,"a") as f:
-                #    f.write("%s\n%s\n"%(cate.encode("utf-8"),menu))
-                #c.lpush("dinner:data:%s"%dinner,menu)
-                #kfc.append(menu)
+                    #with open("%s.json"%path,"a") as f:
+                    #    f.write("%s\n%s\n"%(cate.encode("utf-8"),menu))
 
 def delete(path):
     print path
@@ -99,72 +96,35 @@ def delete(path):
     c = redis.Redis(host='127.0.0.1', port=6379, db=1)
     c.delete("dinner:data:%s"%dinner)
 
-if __name__ == '__main__':
-    #path = sys.argv[1]
-    #inputmenu(path)
-    hong()
-    #delete(path)
+def single(path):
+    #add single category
+    #for example kfc.data
+    dinner = path.split('.')[0]
+    c = redis.Redis(host='127.0.0.1', port=6379, db=1)
+    #c.delete("dinner:data:%s"%dinner)
+    menu={}
+    dishes=[]
+    with open("%s"%path,"r") as f:
+        data = f.readlines()
+    for i in data:
+        dish = {}
+        li = i.split()
+        name = li[0].decode('utf-8')
+        price = str(int((float(li[1])*100)))
+        dish['name'] = name
+        dish['price'] = price
+        print dish
+        dishes.append(dish)
+    #menu["category"] = u"水饺"
+    menu["category"] = u"匹萨"
+    menu["dishes"] = dishes
+    menu = helpers.json_encode(menu)
+    print menu
+    c.lpush("dinner:data:%s"%dinner,menu)
 
-'''
-{
-    "name": "肯德基",
-    "content": [
-        {
-            "category": "cate",
-            "dishes": [
-                {
-                    "name": "name",
-                    "price": "price"
-                },
-                {
-                    "name": "name",
-                    "price": "price"
-                }
-            ]
-        },
-        {
-            "category": "cate",
-            "dishes": [
-                {
-                    "name": "name",
-                    "price": "price"
-                },
-                {
-                    "name": "name",
-                    "price": "price"
-                }
-            ]
-        }
-    ]
-}
-'''
-'''
-[
-    {
-        "category": "cate",
-        "dishes": [
-            {
-                "name": "name",
-                "price": "price"
-            },
-            {
-                "name": "name",
-                "price": "price"
-            }
-        ]
-    },
-    {
-        "category": "cate",
-        "dishes": [
-            {
-                "name": "name",
-                "price": "price"
-            },
-            {
-                "name": "name",
-                "price": "price"
-            }
-        ]
-    }
-]
-'''
+if __name__ == '__main__':
+    path = sys.argv[1]
+    #inputmenu(path)
+    single(path)
+    #hong()
+    #delete(path)
