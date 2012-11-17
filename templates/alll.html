@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>
+    总订单
+    </title>
+  </head>
+  
+  <body>
+    {% for all in li %}
+      <div>
+        <div>
+          <div>
+            <h3>{{ all['from'] }}      
+                <small>
+                    总价{{ all['price'] }}元
+                </small>
+            <h3>
+          </div>
+          {% for order in all['order'] %}
+            <p>
+              {{ order['dish'] }}
+                  <small>
+                    共{{ order['number'] }}个
+                  </small>
+            </p>
+            <p>
+              {% for people in order['people'] %}
+              {{ people }}, 
+              {% end %}
+            </p>
+          {% end %}
+        </div>
+      </div>
+    {% end %}
+  </body>
+
+</html>
