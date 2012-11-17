@@ -210,7 +210,10 @@ class AllOrderHandler(tornado.web.RequestHandler):
                 c = redis.Redis(host='127.0.0.1', port=6379, db=1)
                 for p in people:
                     realname = c.get("dinner:cname:%s"%p)
-                    rpeople.append(realname)
+                    if realname:
+                        rpeople.append(realname)
+                    else:
+                        rpeople.append(p.split("@")[0])
                 order['people'] = rpeople
                 orders.append(order)
             all['order'] = orders
