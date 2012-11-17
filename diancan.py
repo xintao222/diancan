@@ -183,16 +183,12 @@ class AllOrderHandler(tornado.web.RequestHandler):
         all_froms = list(set(all_froms))
         all_list = []
         for i in all_froms:
-            #self.write("%s"%i)
             all = {}
             froms = i
             all['from'] = base64.decodestring(froms).decode('utf-8')
-            #self.write(froms)
-            #self.write(base64.decodestring(i[0]).decode('utf-8'))
             cu.execute('select sum(o.price*o.number) from orders o where o.day = "%s" and o.froms = "%s"'%(str_time,froms))
             price = cu.fetchall()[0][0]
-            all['price'] = price
-            #self.write("%d"%price)
+            all['price'] = str(int(price)/100)
             orders = []
             cu.execute('select dish,sum(number) from orders where day = "%s" and froms = "%s" group by dish'%(str_time,froms))
             for j in cu.fetchall():
@@ -219,9 +215,10 @@ class AllOrderHandler(tornado.web.RequestHandler):
             all['order'] = orders
             all_list.append(all)
 
-        all_list = helpers.json_encode(all_list)
-        self.set_header("Content-Type", "application/json")
-        return self.finish(all_list)
+        #all_list = helpers.json_encode(all_list)
+        self.set_header("Content-Type", "text/html")
+        #return self.finish(all_list)
+        return self.render('alll.html',li=all_list)
 
 class UserHandler(BaseHandler):
     @tornado.web.authenticated
@@ -268,7 +265,7 @@ class UserHandler(BaseHandler):
 class NotFoundHandler(tornado.web.RequestHandler):
     def prepare(self):
         NOTFOUND_404 = "404.html"
-        self.render(NOTFOUND_404, url = self.request.full_url())
+        self.render(NOTFOUND_404)
 
 def main():
     define("port", default=8080, help="run on the given port", type=int)

@@ -39,12 +39,12 @@ def hong():
     menu = helpers.json_encode(menu)
     print menu
     c.lpush("dinner:data:%s"%dinner,menu)
-    name = {}
-    name['name'] = u"鸿毛饺子"
-    name['url'] = "data/hong"
-    name['cname'] = "hong"
-    name = helpers.json_encode(name)
-    c.lpush("dinner:list:all",name)
+    #name = {}
+    #name['name'] = u"鸿毛饺子"
+    #name['url'] = "data/hong"
+    #name['cname'] = "hong"
+    #name = helpers.json_encode(name)
+    #c.lpush("dinner:list:all",name)
 
 def inputmenu(path):
     print path
@@ -123,8 +123,8 @@ def single(path):
     c.lpush("dinner:data:%s"%dinner,menu)
 
 if __name__ == '__main__':
-    path = sys.argv[1]
+    #path = sys.argv[1]
     #inputmenu(path)
-    single(path)
-    #hong()
+    #single(path)
+    hong()
     #delete(path)
