@@ -116,7 +116,7 @@ def single(path):
         print dish
         dishes.append(dish)
     #menu["category"] = u"水饺"
-    menu["category"] = u"匹萨"
+    menu["category"] = u"特享套餐"
     menu["dishes"] = dishes
     menu = helpers.json_encode(menu)
     print menu

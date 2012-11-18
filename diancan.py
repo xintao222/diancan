@@ -206,7 +206,15 @@ class AllOrderHandler(tornado.web.RequestHandler):
                 for k in cu.fetchall():
                     people.append(base64.decodestring(k[0]).decode('utf-8'))
                 people = list(set(people))
-                order['people'] = people
+                rpeople = []
+                c = redis.Redis(host='127.0.0.1', port=6379, db=1)
+                for p in people:
+                    realname = c.get("dinner:cname:%s"%p)
+                    if realname:
+                        rpeople.append(realname)
+                    else:
+                        rpeople.append(p.split("@")[0])
+                order['people'] = rpeople
                 orders.append(order)
             all['order'] = orders
             all_list.append(all)
