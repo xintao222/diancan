@@ -218,7 +218,7 @@ class AllOrderHandler(tornado.web.RequestHandler):
         #all_list = helpers.json_encode(all_list)
         self.set_header("Content-Type", "text/html")
         #return self.finish(all_list)
-        return self.render('alll.html',li=all_list)
+        return self.render('all.html',li=all_list)
 
 class UserHandler(BaseHandler):
     @tornado.web.authenticated
