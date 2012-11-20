@@ -53,6 +53,17 @@ body.loading .indicator {
     @include nowrap;
     @include ellipsis;
   }
+
+  .rests {
+    cursor: default;
+    display: block;
+    margin: 10px;
+    &>.btn:first-child {
+      width: 12em;
+      @include ellipsis;
+      text-align: left;
+    }
+  }
 }
 
 .menu {
@@ -80,7 +91,7 @@ body.loading .indicator {
     }
     &:last-child {
       text-align: right;
-    }    
+    }
   }
 }
 
@@ -178,7 +189,7 @@ body.loading .indicator {
       text-align: center;
       margin-bottom: 20px;
     }
-     
+
     .transform-container {
       -webkit-perspective: 304px;
       height: 38px;

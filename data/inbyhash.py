@@ -9,6 +9,7 @@
 import helpers
 import redis
 c = redis.Redis(host='127.0.0.1', port=6379, db=1)
+c.delete("dinner:data:dou")
 dinner = c.keys("dinner:data:*")
 c.delete("dinner:list:all")
 for di in dinner:
@@ -18,7 +19,7 @@ for di in dinner:
     if di == "hong":
         continue
     _name = {
-                "dou"    :  "小豆面馆",
+                #"dou"    :  "小豆面馆",
                 "meiming":  "没名生煎",
                 "jiahe"  :  "嘉禾一品",
                 "yonghe" :  "永和豆浆",

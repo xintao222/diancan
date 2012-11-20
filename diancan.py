@@ -215,10 +215,25 @@ class AllOrderHandler(tornado.web.RequestHandler):
             all['order'] = orders
             all_list.append(all)
 
+        _people = c.keys("dinner:cname:*")
+        npeople = []
+        for p in _people:
+            mail = p.split(":")[2]
+            flag = c.exists("dinner:%s:%s"%(str_time,mail))
+            if flag:
+                continue
+            else:
+                if mail.split("@")[1] == "wandoujia.com":
+                    _name = c.get("dinner:cname:%s"%mail)
+                    if _name:
+                        npeople.append(_name)
+                    else:
+                        npeople.append(mail.split("@")[0])
+     
         #all_list = helpers.json_encode(all_list)
         self.set_header("Content-Type", "text/html")
         #return self.finish(all_list)
-        return self.render('all.html',li=all_list)
+        return self.render('alll.html',li=all_list, p=npeople,)
 
 class UserHandler(BaseHandler):
     @tornado.web.authenticated

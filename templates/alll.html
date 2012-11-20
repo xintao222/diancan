@@ -6,17 +6,29 @@
     总订单
     </title>
   </head>
-  
+  <style type="text/css"> 
+  body{ font-size:14px; line-height:24px;} 
+  </style> 
+
   <body>
+  <div>
+    <p style={}>
+        今天
+        {% for _p in p %}
+        {{ _p }},
+        {% end %}
+        没订饭.
+  </p>
+  </div>
     {% for all in li %}
       <div>
         <div>
           <div>
-            <h3>{{ all['from'] }}      
+            <h2>{{ all['from'] }}      
                 <small>
                     总价{{ all['price'] }}元
                 </small>
-            <h3>
+            <h2>
           </div>
           {% for order in all['order'] %}
             <p>
@@ -24,13 +36,12 @@
                   <small>
                     共{{ order['number'] }}个
                   </small>
-            </p>
-            <p>
+              订餐者:
               {% for people in order['people'] %}
               {{ people }}, 
               {% end %}
-            </p>
-          {% end %}
+           </p>
+            {% end %}
         </div>
       </div>
     {% end %}
