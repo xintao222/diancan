@@ -111,7 +111,12 @@ class OrderHandler(tornado.web.RequestHandler):
         json = helpers.json_decode(json)
         id = json['id']
         if id.split("@")[1] != "wandoujia.com":
-            return self.finish("ok")
+            raise tornado.web.HTTPError(403)
+            return
+        dead = int(time.strftime("%H%M",time.localtime()))
+        if dead >= 1420:
+            raise tornado.web.HTTPError(403)
+            return
         '''
         统计活跃用户
         '''
@@ -122,6 +127,7 @@ class OrderHandler(tornado.web.RequestHandler):
             c.zadd("dinner:user:pop",id,1)
         
         str_time = time.strftime("%Y%m%d", time.localtime())
+
         for i in json['order']:
             rname = i['from']
             name = i['name']
@@ -215,6 +221,7 @@ class AllOrderHandler(tornado.web.RequestHandler):
             all['order'] = orders
             all_list.append(all)
 
+        c = redis.Redis(host='127.0.0.1', port=6379, db=1)
         _people = c.keys("dinner:cname:*")
         npeople = []
         for p in _people:
