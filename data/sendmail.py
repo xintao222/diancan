@@ -15,7 +15,7 @@ def send(mail):
     #att = MIMEText(open('/home/work/diaochapai/1.pdf', 'rb').read(), 'base64', 'gb2312')
     #att["Content-Type"] = 'application/octet-stream'
     #att["Content-Disposition"] = 'attachment; filename="%s"' % basename.encode('gb2312')
-    text = "hi %s，\n两点之前快订餐吧，阿姨很辛苦，拿到订单后还要挨家打电话给餐馆，一打就要打2个多小时，体谅一下阿姨加快订餐速度吧。：）\n 订餐地址: http://fan.wandoulabs.com"%mail.split("@")[0]
+    text = "hi %s，\n加快订餐速度吧，两点就截止啦。 \n 订餐地址: http://fan.wandoulabs.com"%mail.split("@")[0]
     text_msg = MIMEText(text,'plain','utf-8')  
     #msg.attach(att)
     msg.attach(text_msg)
