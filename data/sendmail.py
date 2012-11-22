@@ -22,7 +22,7 @@ def send(mail):
     
     #加邮件头
     msg['to'] = mail
-    msg['from'] = 'zhida@wandoujia.com'
+    msg['from'] = 'noreply@wandoujia.com'
     msg['subject'] = Header(u'晚饭是人生大事 迟不得', 'gb2312')
     #发送邮件
     server = smtplib.SMTP('smtp.gmail.com:587')
