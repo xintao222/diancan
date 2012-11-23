@@ -97,6 +97,27 @@ class DataHandler(tornado.web.RequestHandler):
         self.set_header("Content-Type", "application/json")
         return self.finish(data)
 
+class DelOrderHandler(BaseHandler):
+#class DelOrderHandler(tornado.web.RequestHandler):
+    @tornado.web.authenticated
+    def get(self):
+        if not self.current_user:
+            raise tornado.web.HTTPError(403)
+            return
+        c = redis.Redis(host='127.0.0.1', port=6379, db=1)
+        cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
+        cu = cx.cursor()
+        self.user = tornado.escape.json_decode(self.current_user)
+        id = tornado.escape.xhtml_escape(self.user["email"])
+        id = self.get_argument('id')
+        str_time = time.strftime("%Y%m%d", time.localtime())
+        bid = base64.encodestring(id.encode("utf-8")).strip()
+        day = int(str_time)
+        c.delete("dinner:%s:%s"%(str_time,id))
+        cu.execute('delete from orders where id = ? and day =?',(bid,day))
+        cx.commit()
+        return self.finish("ok")
+
 class OrderHandler(BaseHandler):
 #class OrderHandler(tornado.web.RequestHandler):
     @tornado.web.authenticated
@@ -122,8 +143,6 @@ class OrderHandler(BaseHandler):
     def post(self):
         c = redis.Redis(host='127.0.0.1', port=6379, db=1)
         cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
-        #cx.text_factory=str
-        #cx.text_factory = sqlite.OptimizedUnicode
         cu = cx.cursor()
         json = self.get_argument('json')
         json = urllib2.unquote(json)
@@ -133,9 +152,9 @@ class OrderHandler(BaseHandler):
             raise tornado.web.HTTPError(403)
             return
         dead = int(time.strftime("%H%M",time.localtime()))
-        #if dead >= 1420:
-        #    raise tornado.web.HTTPError(403)
-        #    return
+        if dead >= 1420:
+            raise tornado.web.HTTPError(403)
+            return
         '''
         统计活跃用户
         '''
@@ -327,6 +346,7 @@ def main():
         (r"/api/all",           AllHandler),
         #(r"/order",             OrderHandler),
         (r"/api/order",             OrderHandler),
+        (r"/api/delorder",             DelOrderHandler),
         (r"/api/allorder",      AllOrderHandler),
         (r"/api/user",          UserHandler),
         #(r"/data/(.*)",         DataHandler),
