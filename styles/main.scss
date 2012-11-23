@@ -1,0 +1,326 @@
+@import "compass";
+@import "compass/css3/user-interface";
+@import "compass_twitter_bootstrap_awesome";
+
+
+[class^="icon-"], [class*=" icon-"] {
+  height: 20px;
+}
+
+body {
+  padding-top: 60px;
+  @include user-select(none);
+}
+body.loading .indicator {
+  -webkit-animation-play-state: running;
+  opacity: 0.8;
+}
+.indicator {
+  -webkit-animation: rotating;
+  -webkit-animation-duration: 0.8s;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-timing-function: linear;
+  -webkit-animation-play-state: paused;
+  opacity: 0;
+  @include transition(opacity 0.1s);
+}
+
+.navbar {
+  cursor: default;
+  .brand {
+    background: image-url('dinner_72.png') 20px center no-repeat;
+    background-size: 32px;
+    padding-left: 60px;
+    .indicator {
+      position: relative;
+      top: -2px;
+      vertical-align: middle;
+    }
+  }
+  .actions {
+    font-size: 20px;
+  }
+}
+
+.nav-container {
+  // @include box-sizing(border-box);
+  // width: 220px;
+  padding:8px 0;
+  .nav-header {
+    font-size: 13px;
+  }
+  .nav li a {
+    @include nowrap;
+    @include ellipsis;
+  }
+
+  .rests {
+    cursor: default;
+    display: block;
+    margin: 10px;
+    &>.btn:first-child {
+      width: 12em;
+      @include ellipsis;
+      text-align: left;
+    }
+  }
+}
+
+.menu {
+  // &:hover tr:not(:hover) > td:nth-last-child(-n+2) {
+  //   opacity: 0.5;
+  // }
+  tr:hover {
+    cursor: pointer;
+    td:first-child > .btn {
+      opacity: 1;
+    }
+    td:nth-child(2) {
+      text-indent: 0.5em;
+    }
+  }
+  th, td {
+    vertical-align: middle;
+    @include transition(all 0.1s);
+    &:first-child {
+      width: 20px;
+      & > .btn {
+        opacity: 0.5;
+        @include transition(opacity 0.3s);
+      }
+    }
+    &:last-child {
+      text-align: right;
+    }
+  }
+}
+
+.order {
+  width: 300px;
+  padding: 0;
+  & > div {
+    display: block;
+    margin: 0 auto;
+    @include clearfix;
+    .btn {
+      @include box-sizing(border-box);
+      width: 145px;
+      float: right;
+      &:nth-child(1) {
+        float: left;
+      }
+    }
+  }
+  table {
+    tr > :nth-child(1) {
+      width: 3em;
+      @include ellipsis;
+    }
+    tr > :nth-child(3) {
+      text-align: center;
+      width: 75px;
+      text-align: right;
+      span {
+        display: inline-block;
+        text-align: center;
+        width: 1.5em;
+      }
+      .btn {
+        padding: 0;
+        height: 20px;
+        width: 20px;
+      }
+    }
+  }
+}
+
+.notice {
+  position: fixed;
+  top: 60px;
+  left: 30%;
+  right: 30%;
+  .alert {
+    box-shadow: 0 3px 10px #999;
+    @include transition(all 0.3s);
+    @include scale(0);
+    &.on {
+      @include scale(1);
+    }
+  }
+}
+
+.welcome {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2000;
+  overflow: hidden;
+  @include transition-property(opacity, transform);
+  @include transition-duration(0.5s);
+  @include transition-timing-function(ease-in-out, ease-in);
+  @include transition-delay(1s, 1.2s);
+  @include background-image(linear-gradient(top, #ccc 30%,#ffffff 70%));
+
+  &.fadeout {
+    opacity: 0;
+    @include translateY(-100%);
+  }
+
+
+  & > div {
+    width: 440px;
+    position: absolute;
+    left: 50%;
+    margin-left: -220px;
+    top: 50px;
+
+    .large-logo {
+      $image: "dinner.png";
+      $width: image-width($image);
+      $height: image-height($image) - 40px;
+      margin: 0 auto;
+      width: $width;
+      height: $height;
+      background: image-url($image) left top no-repeat;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .transform-container {
+      -webkit-perspective: 304px;
+      height: 38px;
+      position: relative;
+    }
+    .btn {
+      $height: 38px;
+      position: absolute;
+      width: 200px;
+      top: 0;
+      left: 50%;
+      margin-left: -115px;
+      @include transition(-webkit-transform 0.3s ease-out);
+      -webkit-transform-origin-z: -19px;
+      -webkit-backface-visibility: hidden;
+
+      &.greeting {
+        cursor: default;
+      }
+      &.loading {
+        cursor: default;
+        // -webkit-animation: loading;
+        // -webkit-animation-duration: 1s;
+        // -webkit-animation-iteration-count: infinite;
+        // -webkit-animation-timing-function: ease-out;
+        // -webkit-animation-direction: alternate;
+      }
+      &.signin {
+        i {
+          vertical-align: top;
+        }
+      }
+    }
+
+    .transform-container {
+      .greeting, .signin {
+        opacity: 0;
+      }
+      &.loading, &.greeting, &.signin {
+        .greeting, .signin {
+          opacity: 1;
+        }
+      }
+      &, &.loading {
+        .greeting {
+          -webkit-animation: none;
+          -webkit-transform: rotateX(90deg);
+          z-index: 1;
+        }
+        .loading {
+          z-index: 3;
+        }
+        .signin {
+          -webkit-animation: none;
+          -webkit-transform: rotateX(-90deg);
+          z-index: 2;
+        }
+      }
+      &.greeting {
+        .greeting {
+          -webkit-transform: rotateX(0deg);
+          z-index: 3;
+        }
+        .loading {
+          -webkit-animation: none;
+          -webkit-transform: rotateX(-90deg);
+          z-index: 2;
+        }
+        .signin {
+          -webkit-animation: none;
+          -webkit-transform: rotateX(-180deg);
+          z-index: 1;
+        }
+      }
+      &.signin {
+        .greeting {
+          -webkit-animation: none;
+          -webkit-transform: rotateX(180deg);
+          z-index: 1;
+        }
+        .loading {
+          -webkit-animation: none;
+          -webkit-transform: rotateX(90deg);
+          z-index: 2;
+        }
+        .signin {
+          -webkit-transform: rotateX(0deg);
+          z-index: 3;
+        }
+      }
+      & .btn {
+        -webkit-animation: glowing;
+        -webkit-animation-duration: 2s;
+        -webkit-animation-iteration-count: infinite;
+        -webkit-animation-timing-function: ease-in-out;
+        -webkit-animation-direction: alternate;
+      }
+    }
+  }
+}
+
+@-webkit-keyframes rotating {
+  from {
+    -webkit-transform: rotate(0);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes fading {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.5;
+  }
+}
+@-webkit-keyframes loading {
+  from {
+    color: rgba(255,255,255,0.5);
+  }
+  to {
+    color: rgba(255,255,255,1);
+  }
+}
+@-webkit-keyframes glowing {
+  0% {
+    box-shadow: 0 0 20px 0 rgba(0, 110, 204, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 25px 0 rgba(0, 110, 204, 1);
+  }
+}
