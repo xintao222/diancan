@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+
+        <link rel="stylesheet" href="styles/51f9a6e4.main.css">
+        <!-- <script src="scripts/vendor/cf69c6f2.modernizr.min.js"></script> -->
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- Add your site or application content here -->
+
+        <div class="navbar navbar-fixed-top">
+          <div class="navbar-inner">
+            <div class="container">
+              <a class="brand" href="#" title="专为豌豆吃饭打造" rel="tooltip" data-placement="bottom"> 喂<span data-bind="text: (user.name() || '豌豆')"></span> <span class="label">ever-alpha</span> <i class="indicator icon-refresh"></i></a>
+<!--               <div class="btn-group pull-left" data-bind="with: rests">
+                <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">餐厅：<span data-bind="text: selectedRestName"></span> <span class="caret"></span></a>
+                <ul class="dropdown-menu" data-bind="foreach: list">
+                  <li><a data-bind="text: name, click: .select"></a></li>
+                </ul>
+              </div>
+              <div class="btn-group pull-left" data-bind="with: menu">
+                <a class="btn btn-inverse dropdown-toggle" data-toggle="dropdown" href="#">菜单：<span data-bind="text: selectedCategory().category"></span> <span class="caret"></span></a>
+                <ul class="dropdown-menu" data-bind="foreach: menu">
+                  <li><a data-bind="text: category, click: .selectedCategory"></a></li>
+                </ul>
+              </div>
+               -->
+              <ul class="nav pull-right actions" style="padding-right: 10px;">
+                <li class="divider-vertical"></li>
+                <li><a href="#disqus" rel="tooltip" title="吐个槽" data-toggle="modal"><i class="icon-comment"></i></a></li>
+                <li><a data-toggle="modal" rel="tooltip" title="修改豌豆信息" href="#userinfo"><i class="icon-user"></i></a></li>
+                <li><a href="/api/logout" rel="tooltip" title="退出" data-bind="click: confirmSignout"><i class="icon-signout"></i></a></li>
+              </ul>
+              <form class="navbar-search pull-right" data-bind="submit: search.addDish">
+                <input id="search-dish" type="text" class="search-query" data-provide="typeahead" data-bind="attr: { placeholder: '找 ' + rests.selectedRestName() + ' 的菜？'}" rel="tooltip" data-placement="left" title="再次回车加入订单" data-trigger="manual">
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="container">
+          <div class="row-fluid">
+            <div class="span3">
+              <div class="well nav-container">
+                <div class="rests btn-group" data-bind="with: rests">
+                  <button class="btn btn-primary" data-toggle="dropdown" href="#">餐厅：<span data-bind="text: selectedRestName"></span></button>
+                  <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                    <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu" data-bind="foreach: list">
+                    <li><a data-bind="text: name, click: $parent.select"></a></li>
+                  </ul>
+                </div>
+                <ul class="nav nav-list">
+                  <li class="nav-header"><i class="icon-book"></i> 菜单 <i class="indicator icon-refresh"></i></li>
+                  <!-- ko foreach: menu.menu -->
+                  <li data-bind="css: {active: $root.menu.selectedCategory() === $data}, click: $root.menu.selectedCategory"><a href="#" data-bind="text: category"></a></li>
+                  <!-- /ko -->
+                </ul>
+              </div>
+            </div>
+            <div class="span5">
+              <table class="table table-hover menu">
+                <tbody data-bind="foreach: menu.selectedCategory().dishes">
+                  <tr data-bind="click: $root.menu.order">
+                    <td><button class="btn btn-primary btn-small">+1</button></td>
+                    <td><span data-bind="text: name"></span></td>
+                    <td><strong data-bind="text: Math.floor(price / 100)"></strong>.<span style="opacity: 0.5;" data-bind="text: (price % 100 + 100).toString().slice(1)"></span> 元</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="span4">
+              <div class="order affix">
+                <div>
+                  <a rel="tooltip" title="立即下单，买就送！" class="btn btn-primary" href="#" data-bind="click: makeOrder">下单</a>
+                  <a rel="tooltip" title="减肥，不吃了！" class="btn btn-warning" href="#" data-bind="click: newOrder">清空</a>
+                  <!-- <a rel="tooltip" title="每天都吃一样的不会无聊吗？" class="btn" href="#" data-bind="click: order().saveDefault">默认</a> -->
+                </div>
+                <table class="table table-striped"  data-bind="visible: order().dishes().length">
+                  <thead>
+                    <tr>
+                      <th>餐厅</th>
+                      <th>菜品</th>
+                      <th>份数</th>
+                    </tr>
+                  </thead>
+                  <tbody data-bind="foreach: order().dishes">
+                    <tr>
+                      <td data-bind="text: rest"></td>
+                      <td data-bind="text: name"></td>
+                      <td><a class="btn" data-bind="click: $root.order().removeDish"><i class="icon-minus"></i></a> <span data-bind="text: amount"></span> <a class="btn" data-bind="click: $root.order().addDish"><i class="icon-plus"></i></a></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="alert alert-info" style="margin:20px 0;text-align:center;" data-bind="visible: !order().dishes().length"><i class="icon-arrow-left icon-large"></i> 快去点餐吧 :)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="notice" data-bind="visible: alert.message, if: alert.message">
+          <div class="alert" data-bind="delayCss: { on: true }">
+            <button type="button" class="close" data-dismiss="alert" data-bind="click: alert.clear">×</button>
+            <i class="icon-info-sign icon-large"></i>&nbsp;&nbsp;&nbsp;&nbsp;<strong data-bind="text: alert.message"></strong>
+          </div>
+        </div>
+
+        <div class="modal hide fade" id="userinfo" data-backdrop="static" data-keyboard="false" data-show="false" data-bind="attr: { 'data-backdrop': user.nameAbsent() ? 'static' : 'true', 'data-keyboard': user.nameAbsent() ? 'false' : 'true' }">
+          <div class="modal-header">
+            <a class="close" data-dismiss="modal" data-bind="visible: !user.nameAbsent()">&times;</a>
+            <h3>豌豆信息</h3>
+          </div>
+          <div class="modal-body">
+            <form>
+              <fieldset>
+                <!-- <legend>个人信息</legend> -->
+                <label>易辨识的名字</label>
+                <input id="user-display-name" type="text" placeholder="来个名字亲">
+                <span class="help-block">请输入名字，要阿姨认识的，否则单丢了饿着吧。。。</span>
+              </fieldset>
+            </form>
+
+          </div>
+          <div class="modal-footer">
+            <a href="#" class="btn btn-primary" data-bind="click: function(data, e) { var name = $('#user-display-name').val(); if (name) {data.user.save(name)} console.log(this);}">确定</a>
+            <a href="#" class="btn" data-dismiss="modal" data-bind="visible: !user.nameAbsent()">取消</a>
+          </div>
+        </div>
+
+        <div class="modal hide fade" id="disqus">
+          <div class="modal-header">
+            <a class="close" data-dismiss="modal">&times;</a>
+            <h3>来吐个槽吧</h3>
+          </div>
+          <div class="modal-body" style="min-height: 300px;overflow: auto;">
+            <div id="disqus_thread"></div>
+              <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+              <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+            </div>
+          <div class="modal-footer">
+            <a href="#disqus" data-toggle="modal" class="btn btn-primary">爽了！</a>
+          </div>
+        </div>
+
+
+        <div class="welcome" data-bind="css: { fadeout: loaded}">
+          <div>
+            <div class="large-logo"></div>
+            <h2>喂<span><script>document.write(localStorage.getItem('user-display-name') || '豌豆');</script></span>！</h2>
+            <div class="transform-container" data-bind="css: welcomeStatus">
+              <div class="btn btn-primary btn-large greeting" data-bind="text: '订饭了，' + user.name()"></div>
+              <div class="btn btn-primary btn-large loading">LOADING...</div>
+              <a href="/api/login" class="btn btn-primary btn-large signin">
+                <i class="icon-google-plus-sign icon-large icon-white"></i> Google Account 登录
+              </a>
+            </div>
+          </div>
+        </div>
+
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="scripts/vendor/8bc61845.jquery.min.js"><\/script>')</script>
+
+
+
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+<!--
+        <script>
+            var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+            (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+            g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+            s.parentNode.insertBefore(g,s)}(document,'script'));
+        </script>
+-->
+
+    <script src="scripts/a458c4db.plugins.js"></script>
+
+    <script src="scripts/de48624f.amd-app.js"></script>
+</body>
+</html>

@@ -97,21 +97,64 @@ class DataHandler(tornado.web.RequestHandler):
         self.set_header("Content-Type", "application/json")
         return self.finish(data)
 
-#class OrderHandler(BaseHandler):
-class OrderHandler(tornado.web.RequestHandler):
-    #@tornado.web.authenticated
+class DelOrderHandler(BaseHandler):
+#class DelOrderHandler(tornado.web.RequestHandler):
+    @tornado.web.authenticated
+    def get(self):
+        if not self.current_user:
+            raise tornado.web.HTTPError(403)
+            return
+        c = redis.Redis(host='127.0.0.1', port=6379, db=1)
+        cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
+        cu = cx.cursor()
+        self.user = tornado.escape.json_decode(self.current_user)
+        id = tornado.escape.xhtml_escape(self.user["email"])
+        id = self.get_argument('id')
+        str_time = time.strftime("%Y%m%d", time.localtime())
+        bid = base64.encodestring(id.encode("utf-8")).strip()
+        day = int(str_time)
+        c.delete("dinner:%s:%s"%(str_time,id))
+        cu.execute('delete from orders where id = ? and day =?',(bid,day))
+        cx.commit()
+        return self.finish("ok")
+
+class OrderHandler(BaseHandler):
+#class OrderHandler(tornado.web.RequestHandler):
+    @tornado.web.authenticated
+    def get(self):
+        if not self.current_user:
+            raise tornado.web.HTTPError(403)
+            return
+        c = redis.Redis(host='127.0.0.1', port=6379, db=1)
+        self.user = tornado.escape.json_decode(self.current_user)
+        id = tornado.escape.xhtml_escape(self.user["email"])
+        str_time = time.strftime("%Y%m%d", time.localtime())
+        allorder = c.keys("dinner:%s:%s"%(str_time,id))
+        _order = c.lrange(allorder[0],0,-1)
+        orders= []
+        for i in _order:
+            _i = helpers.json_decode(i)
+            orders.append(_i)
+        all = {}
+        all['id'] = id
+        all['order'] = orders
+        all = helpers.json_encode(all)
+        return self.finish(all)
     def post(self):
         c = redis.Redis(host='127.0.0.1', port=6379, db=1)
         cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
-        #cx.text_factory=str
-        #cx.text_factory = sqlite.OptimizedUnicode
         cu = cx.cursor()
         json = self.get_argument('json')
         json = urllib2.unquote(json)
         json = helpers.json_decode(json)
         id = json['id']
         if id.split("@")[1] != "wandoujia.com":
-            return self.finish("ok")
+            raise tornado.web.HTTPError(403)
+            return
+        dead = int(time.strftime("%H%M",time.localtime()))
+        if dead >= 1420:
+            raise tornado.web.HTTPError(403)
+            return
         '''
         统计活跃用户
         '''
@@ -122,6 +165,12 @@ class OrderHandler(tornado.web.RequestHandler):
             c.zadd("dinner:user:pop",id,1)
         
         str_time = time.strftime("%Y%m%d", time.localtime())
+        bid = base64.encodestring(id.encode("utf-8")).strip()
+        day = int(str_time)
+        c.delete("dinner:%s:%s"%(str_time,id))
+        cu.execute('delete from orders where id = ? and day =?',(bid,day))
+        cx.commit()
+
         for i in json['order']:
             rname = i['from']
             name = i['name']
@@ -215,6 +264,7 @@ class AllOrderHandler(tornado.web.RequestHandler):
             all['order'] = orders
             all_list.append(all)
 
+        c = redis.Redis(host='127.0.0.1', port=6379, db=1)
         _people = c.keys("dinner:cname:*")
         npeople = []
         for p in _people:
@@ -289,14 +339,19 @@ def main():
     tornado.options.parse_command_line()
     application = tornado.web.Application([
         (r"/",                  IndexHandler),
-        (r"/login",             GoogleAuthLoginHandler),
-        (r"/logout",            LogoutHandler),
+        #(r"/login",             GoogleAuthLoginHandler),
+        (r"/api/login",             GoogleAuthLoginHandler),
+        #(r"/logout",            LogoutHandler),
+        (r"/api/logout",            LogoutHandler),
         (r"/api/all",           AllHandler),
-        (r"/order",             OrderHandler),
+        #(r"/order",             OrderHandler),
+        (r"/api/order",             OrderHandler),
+        (r"/api/delorder",             DelOrderHandler),
         (r"/api/allorder",      AllOrderHandler),
         (r"/api/user",          UserHandler),
-        (r"/data/(.*)",         DataHandler),
-        (r"/.*",                NotFoundHandler), 
+        #(r"/data/(.*)",         DataHandler),
+        (r"/api/data/(.*)",         DataHandler),
+        #(r"/.*",                NotFoundHandler), 
     ], **settings)
     http_server = tornado.httpserver.HTTPServer(application)
     http_server.listen(options.port)
