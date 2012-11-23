@@ -4,6 +4,7 @@ import sqlite3
 import helpers
 import base64
 import time
+
 def see():
     cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
     cx.text_factory=str
@@ -89,11 +90,6 @@ def dell():
     cu = cx.cursor()
     cu.execute('delete from orders')
     cx.commit()
-
-def dell():
-    cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
-    cu = cx.cursor()
-    cu.execute('delete from orders')
 
 def orders():
     json='{"id": "zhida@wandoujia.com","order": [{"name":"麦乐鸡套餐","from":"mac","number": "1", "price": "1650"},{"name":"可乐","from":"kfc","number": "2","price": "800"}]}'
