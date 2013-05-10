@@ -10,7 +10,7 @@ import helpers
 import redis
 def all():
     c = redis.Redis(host='127.0.0.1', port=6379, db=1)
-    c.delete("dinner:data:zheng")
+    c.delete("dinner:data:hzy")
     dinner = c.keys("dinner:data:*")
     c.delete("dinner:list:all")
     for di in dinner:
@@ -21,7 +21,7 @@ def all():
             continue
         _name = {
                     #"dou"    :  "小豆面馆",
-                    "meiming":  "没名生煎",
+                    #"meiming":  "没名生煎",
                     "jiahe"  :  "嘉禾一品",
                     "yonghe" :  "永和豆浆",
                     "hehegu" :  "和合谷",
@@ -30,12 +30,17 @@ def all():
                     "kfc"    :  "肯德基",
                     "mac"    :  "麦当劳",
                     "pizza"  :  "必胜客",
+                    #"hzy"    :  "宏状元",
                     #"zheng"  :  "正一味",
                     "zhen"   :  "真功夫",
                     "xiao"   :  "三笑",
+                    "mao"    :  "成都冒菜粉",
                     #"hong"   :  "鸿毛饺子",
                 }
-        name = _name['%s'%di]
+        if _name.has_key(di):
+            name = _name['%s'%di]
+        else:
+            continue
         print name
         url = "data/%s"%di
         print url

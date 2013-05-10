@@ -15,7 +15,8 @@ def send(mail):
     #att = MIMEText(open('/home/work/diaochapai/1.pdf', 'rb').read(), 'base64', 'gb2312')
     #att["Content-Type"] = 'application/octet-stream'
     #att["Content-Disposition"] = 'attachment; filename="%s"' % basename.encode('gb2312')
-    text = "hi %s，\n如果你今晚报名去看电影的话, 暂时就不用订餐啦, 因为电影的时间比较早, 订餐的话会来不及. 所以会由阿姨统一给大家订点肯德基麦当劳的快餐让大家填饱肚子, 然后就一起出发去看电影. "%mail.split("@")[0]
+    #text = "hi %s，\n如果你今晚报名去看电影的话, 暂时就不用订餐啦, 因为电影的时间比较早, 订餐的话会来不及. 所以会由阿姨统一给大家订点肯德基麦当劳的快餐让大家填饱肚子, 然后就一起出发去看电影. "%mail.split("@")[0]
+    text = "hi %s，\n最近大家都反应登录订饭系统会报错，具体原因是这样的，订饭系统使用的是Google OpenID认证，服务器端在你登录的时候，会访问Google的API，但这一步在近期被GFW给reset了，所以会出现Google Auth Failed的Error。。\n对于受此现象困扰的同学我们深感sorry。。近日我们计划把订饭系统迁到墙外，彻底解决这个问题。\n "%mail.split("@")[0]
     text_msg = MIMEText(text,'plain','utf-8')  
     #msg.attach(att)
     msg.attach(text_msg)
@@ -23,7 +24,7 @@ def send(mail):
     #加邮件头
     msg['to'] = mail
     msg['from'] = 'noreply@wandoujia.com'
-    msg['subject'] = Header(u'晚饭是人生大事 迟不得', 'gb2312')
+    msg['subject'] = Header(u'晚饭是人生大事', 'gb2312')
     #发送邮件
     server = smtplib.SMTP('smtp.gmail.com:587')
     username = 'noreply@wandoujia.com'
@@ -32,6 +33,7 @@ def send(mail):
     server.login(username,password)
     server.sendmail(msg['from'], msg['to'], msg.as_string())
     server.close
+    return
 
 if  __name__ =="__main__":
     c = redis.Redis(host='127.0.0.1', port=6379, db=1)

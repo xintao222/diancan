@@ -32,14 +32,16 @@
           </div>
           {% for order in all['order'] %}
             <p>
-              {{ order['dish'] }}
+             [{{ all['from'] }}]
+             {{ order['dish'] }}
                   <small>
                     共{{ order['number'] }}个
                   </small>
-              订餐者:
+              <strong>
               {% for people in order['people'] %}
-              {{ people }}, 
+              {{ people }},
               {% end %}
+              </strong>
            </p>
             {% end %}
         </div>

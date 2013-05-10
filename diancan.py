@@ -75,8 +75,10 @@ class GoogleAuthLoginHandler(tornado.web.RequestHandler, tornado.auth.GoogleMixi
         self.authenticate_redirect()  
   
     def _on_auth(self, user):  
+        s = "Server端验证Google auth失败了，估计是被墙了，不要惊慌，隔几秒刷新一下就没问题了。"
         if not user:  
-            raise tornado.web.HTTPError(500, "Google auth failed")  
+            raise tornado.web.HTTPError(500, s)
+            #raise tornado.web.HTTPError(500, "Google auth failed")  
         self.set_secure_cookie("user", tornado.escape.json_encode(user))  
         self.redirect("/")
 
@@ -129,6 +131,10 @@ class OrderHandler(BaseHandler):
         self.user = tornado.escape.json_decode(self.current_user)
         id = tornado.escape.xhtml_escape(self.user["email"])
         str_time = time.strftime("%Y%m%d", time.localtime())
+        if not c.exists("dinner:%s:%s"%(str_time,id)):
+            self.finish("{}")
+            return
+
         allorder = c.keys("dinner:%s:%s"%(str_time,id))
         _order = c.lrange(allorder[0],0,-1)
         orders= []
@@ -152,7 +158,7 @@ class OrderHandler(BaseHandler):
             raise tornado.web.HTTPError(403)
             return
         dead = int(time.strftime("%H%M",time.localtime()))
-        if dead >= 1420:
+        if dead >= 1550:
             raise tornado.web.HTTPError(403)
             return
         '''
@@ -165,11 +171,11 @@ class OrderHandler(BaseHandler):
             c.zadd("dinner:user:pop",id,1)
         
         str_time = time.strftime("%Y%m%d", time.localtime())
-        bid = base64.encodestring(id.encode("utf-8")).strip()
-        day = int(str_time)
-        c.delete("dinner:%s:%s"%(str_time,id))
-        cu.execute('delete from orders where id = ? and day =?',(bid,day))
-        cx.commit()
+        #bid = base64.encodestring(id.encode("utf-8")).strip()
+        #day = int(str_time)
+        #c.delete("dinner:%s:%s"%(str_time,id))
+        #cu.execute('delete from orders where id = ? and day =?',(bid,day))
+        #cx.commit()
 
         for i in json['order']:
             rname = i['from']

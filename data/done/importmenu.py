@@ -72,7 +72,7 @@ def inputmenu(path):
                 menu["dishes"] = dishes
                 menu = helpers.json_encode(menu)
                 #print menu
-                if u"早点" in cate or u"饮品" in cate or u"早餐" in cate or u"饮料" in cate or u"三人" in cate or u"10人" in cate or u"午餐" in cate or u"宵夜" in cate or u"双人" in cate or u"夜宵" in cate or u"匹萨" in cate:
+                if u"冰粥" in cate or u"早点" in cate or u"饮品" in cate or u"早餐" in cate or u"饮料" in cate or u"三人" in cate or u"10人" in cate or u"午餐" in cate or u"宵夜" in cate or u"双人" in cate or u"夜宵" in cate or u"匹萨" in cate:
                     print cate
                     print "--------------"
                     continue
@@ -110,7 +110,7 @@ def single(path):
         print dish
         dishes.append(dish)
     #menu["category"] = u"水饺"
-    menu["category"] = u"小食"
+    menu["category"] = path.split('.')[1]
     menu["dishes"] = dishes
     menu = helpers.json_encode(menu)
     print menu
@@ -118,7 +118,7 @@ def single(path):
 
 if __name__ == '__main__':
     path = sys.argv[1]
-    inputmenu(path)
-    #single(path)
+    #inputmenu(path)
+    single(path)
     #hong()
     #delete(path)
