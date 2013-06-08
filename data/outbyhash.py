@@ -4,12 +4,12 @@
 # Author: liuzhida - liuzhia@meituan.com
 # Last modified: 2012-08-22 16:24
 # Filename: grub.py
-# Description: 
+# Description:
 #=======================================
 import helpers
 import redis
 c = redis.Redis(host='127.0.0.1', port=6379, db=1)
-all = c.lrange("dinner:all",0,-1)
+all = c.lrange("dinner:all", 0, -1)
 data = []
 for i in all:
     print type(i)
@@ -18,7 +18,7 @@ for i in all:
     data.append(i)
 data = helpers.json_encode(data)
 print data
-#print type(json)
-#print json
-#print "================================="
-#print type(helpers.json_encode(json))
+# print type(json)
+# print json
+# print "================================="
+# print type(helpers.json_encode(json))
