@@ -12,6 +12,7 @@ def see():
     cu = cx.cursor()
     str_time = time.strftime("%Y%m%d", time.localtime())
 
+    #str_time = "20130615"
     # for i in cu.execute('select * from orders where day = "%s"'%(str_time)):
     #    for j in i:
     #        if type(j) == type("a"):

@@ -29,10 +29,7 @@ class BaseHandler(tornado.web.RequestHandler):
         # self.redirect("/login")
 
 # class IndexHandler(BaseHandler):
-
-
 class IndexHandler(tornado.web.RequestHandler):
-    #@tornado.web.authenticated
 
     def get(self):
         self.render('index.html')
@@ -43,7 +40,7 @@ class MainHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
         if not self.current_user:
-            self.redirect("/login")
+            self.redirect("/api/login")
             return
         # name = tornado.escape.xhtml_escape(self.current_user)
         # self.write("Hello, " + name)
@@ -77,34 +74,23 @@ class GoogleAuthLoginHandler(tornado.web.RequestHandler, tornado.auth.GoogleMixi
         if self.get_argument("openid.mode", None):
             self.get_authenticated_user(self.async_callback(self._on_auth))
             return
-        # else:
-        #    global _referer
-        # may redirect to other user's referer pages
-        #    _referer = self.get_argument("referer", "/")
-
         self.authenticate_redirect()
 
     def _on_auth(self, user):
-        # s = "Server端验证Google auth失败了，估计是被墙了，不要惊慌，隔几秒刷新一下就没问题了。"
         if not user:
             self.redirect("/")
-            # raise tornado.web.HTTPError(500, s)
             # raise tornado.web.HTTPError(500, "Google auth failed")
         self.set_secure_cookie("user", tornado.escape.json_encode(user))
         self.redirect("/")
 
-# class DataHandler(BaseHandler):
-
 
 class DataHandler(tornado.web.RequestHandler):
+# class DataHandler(BaseHandler):
     #@tornado.web.authenticated
 
     def get(self, channel):
         c = redis.Redis(host='127.0.0.1', port=6379, db=1)
         li = c.lrange("dinner:data:%s" % channel, 0, -1)
-        # with open("kfc.list","r") as f:
-        #    li = f.read()
-        # return self.finish(str(li))
         data = []
         for i in li:
             i = helpers.json_decode(i)
@@ -115,7 +101,6 @@ class DataHandler(tornado.web.RequestHandler):
 
 
 class DelOrderHandler(BaseHandler):
-# class DelOrderHandler(tornado.web.RequestHandler):
 
     @tornado.web.authenticated
     def get(self):
@@ -383,24 +368,20 @@ def main():
     define("port", default=8080, help="run on the given port", type=int)
     settings = {
         "debug": True, "template_path": "templates",
-        "static_path": "static", "login_url": "/login",
+        "static_path": "static", "login_url": "/api/login",
         "cookie_secret": "z1DAVh+WTvyqpWGmOtJCQLETQYUznEuYskSF062J0To=", }
     tornado.options.parse_command_line()
     application = tornado.web.Application([
-        (r"/", IndexHandler),
+        (r"/",                  IndexHandler),
         #(r"/login",             GoogleAuthLoginHandler),
-        (r"/api/login", GoogleAuthLoginHandler),
-        #(r"/logout",            LogoutHandler),
-        (r"/api/logout", LogoutHandler),
-        (r"/api/all", AllHandler),
-        #(r"/order",             OrderHandler),
-        (r"/api/order", OrderHandler),
-        (r"/api/delorder", DelOrderHandler),
-        (r"/api/allorder", AllOrderHandler),
-        (r"/api/user", UserHandler),
-        #(r"/data/(.*)",         DataHandler),
-        (r"/api/data/(.*)", DataHandler),
-        #(r"/.*",                NotFoundHandler),
+        (r"/api/login",         GoogleAuthLoginHandler),
+        (r"/api/logout",        LogoutHandler),
+        (r"/api/all",           AllHandler),
+        (r"/api/order",         OrderHandler),
+        (r"/api/delorder",      DelOrderHandler),
+        (r"/api/allorder",      AllOrderHandler),
+        (r"/api/user",          UserHandler),
+        (r"/api/data/(.*)",     DataHandler),
     ], **settings)
     http_server = tornado.httpserver.HTTPServer(application)
     http_server.listen(options.port)
