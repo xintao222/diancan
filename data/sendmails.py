@@ -53,8 +53,6 @@ if __name__ == "__main__":
         "20131007"]
     if str_time in holiday:
         quit()
-    username = 'zhida@wandoujia.com'
-    password = 'ali39315'
     username = 'noreply@wandoujia.com'
     password = '8Raq3%DE'
     server = smtplib.SMTP('smtp.gmail.com:587')
