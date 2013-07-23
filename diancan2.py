@@ -185,7 +185,7 @@ class OrderHandler(BaseHandler):
             raise tornado.web.HTTPError(403)
             return
         dead = int(time.strftime("%H%M", time.localtime()))
-        if dead >= 1555:
+        if dead >= 1600:
            raise tornado.web.HTTPError(403)
            return
 

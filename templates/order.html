@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>
+    总订单
+    </title>
+  </head>
+  <style type="text/css"> 
+  body{ font-size:14px; line-height:24px;} 
+  </style> 
+
+  <body>
+    {% for p in all %}
+      <div>
+        <div>
+          <div>
+            <h2>{{ p['name'] }}      
+            <h2>
+          </div>
+          {% for order in p['order'] %}
+            <p>
+             <strong>[{{ order['from'] }}]</strong>
+             {{ order['name'] }}
+                  <small>
+                    共{{ order['number'] }}个
+                  </small>
+           </p>
+            {% end %}
+        </div>
+      </div>
+    {% end %}
+  </body>
+
+</html>

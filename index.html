@@ -13,7 +13,7 @@
         <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
 
-        <link rel="stylesheet" href="styles/51f9a6e4.main.css">
+        <link rel="stylesheet" href="styles/96c647a9.main.css">
         <!-- <script src="scripts/vendor/cf69c6f2.modernizr.min.js"></script> -->
     </head>
     <body>
@@ -87,9 +87,10 @@
             </div>
             <div class="span4">
               <div class="order affix">
-                <div>
+                <div class="group">
                   <a rel="tooltip" title="立即下单，买就送！" class="btn btn-primary" href="#" data-bind="click: makeOrder">下单</a>
                   <a rel="tooltip" title="减肥，不吃了！" class="btn btn-warning" href="#" data-bind="click: newOrder">清空</a>
+                  <a rel="tooltip" title="我失忆了，我点过啥" class="btn" href="#order" data-toggle="modal" data-bind="click: showOrder">回忆</a>
                   <!-- <a rel="tooltip" title="每天都吃一样的不会无聊吗？" class="btn" href="#" data-bind="click: order().saveDefault">默认</a> -->
                 </div>
                 <table class="table table-striped"  data-bind="visible: order().dishes().length">
@@ -158,6 +159,24 @@
           </div>
         </div>
 
+        <div class="modal hide fade" id="order">
+            <div class="modal-header">
+                <a class="close" data-dismiss="modal">&times;</a>
+                <h3>今天的订单</h3>
+            </div>
+            <div class="modal-body">
+                <p data-bind="if: !ordered().length">今天到目前为止还是不吃饭的节奏</p>
+                <ul>
+                    <!-- ko foreach: ordered -->
+                    <li><span data-bind="text: from"></span> - <span data-bind="text: name"></span> &times; <span data-bind="text: number"></span></li>
+                    <!-- /ko -->
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <a href="#order" data-toggle="modal" class="btn btn-danger" data-bind="click: destroyOrder, visible: ordered().length">我不吃了！</a>
+            </div>
+        </div>
+
 
         <div class="welcome" data-bind="css: { fadeout: loaded}">
           <div>
@@ -173,6 +192,9 @@
           </div>
         </div>
 
+        <script>
+            window.HOST = '//f.wandoulabs.com';
+        </script>
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="scripts/vendor/8bc61845.jquery.min.js"><\/script>')</script>
@@ -191,6 +213,6 @@
 
     <script src="scripts/a458c4db.plugins.js"></script>
 
-    <script src="scripts/de48624f.amd-app.js"></script>
+    <script src="scripts/a3336cf5.amd-app.js"></script>
 </body>
 </html>

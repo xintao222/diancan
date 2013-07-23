@@ -1,5 +1,5 @@
 #!/bin/bash
-i="diancan"
+i="diancan.py"
 pid=`ps auxf | grep $i | grep -v "grep" | awk {'print $2'}`
 echo $pid;
 sudo kill $pid;

@@ -15,6 +15,7 @@ import sqlite3
 import time
 import base64
 import urllib2
+import json
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -161,7 +162,7 @@ class OrderHandler(BaseHandler):
             raise tornado.web.HTTPError(403)
             return
         dead = int(time.strftime("%H%M", time.localtime()))
-        if dead >= 1440:
+        if dead >= 1600:
             raise tornado.web.HTTPError(403)
             return
         '''
@@ -313,6 +314,28 @@ class AllOrderHandler(tornado.web.RequestHandler):
         return self.render('alll.html', li=all_list, p=npeople,)
 
 
+class EachOrderHandler(tornado.web.RequestHandler):
+
+    def get(self):
+        str_time = time.strftime("%Y%m%d", time.localtime())
+        c = redis.Redis(host='127.0.0.1', port=6379, db=1)
+        keys = c.keys("dinner:%s:*"%str_time)
+        dinner = list()
+        for key in keys:
+            id = key.split(":")[-1]
+            _orders = c.lrange(key,0,-1) 
+            order = list()
+            for o in _orders:
+                order.append(json.loads(o))
+            person = dict() 
+            person['order'] = order
+            person['name'] = c.get("dinner:cname:%s"%id)
+            dinner.append(person)
+
+        self.set_header("Content-Type", "text/html")
+        return self.render('order.html', all=dinner)
+
+
 class UserHandler(BaseHandler):
 
     @tornado.web.authenticated
@@ -328,6 +351,7 @@ class UserHandler(BaseHandler):
         # name = tornado.escape.xhtml_escape(self.user["name"])
         name = c.get("dinner:cname:%s" % email)
         user = {}
+        #user['id'] = email.split("@")[0]
         if name:
             user['name'] = name
         else:
@@ -369,7 +393,7 @@ def main():
     settings = {
         "debug": True, "template_path": "templates",
         "static_path": "static", "login_url": "/api/login",
-        "cookie_secret": "z1DAVh+WTvyqpWGmOtJCQLETQYUznEuYskSF062J0To=", }
+        "cookie_secret": "Zz1DAVh+WTvyqpWGmOtJCQLETQYUznEuYskSF062J0To=", }
     tornado.options.parse_command_line()
     application = tornado.web.Application([
         (r"/",                  IndexHandler),
@@ -380,6 +404,7 @@ def main():
         (r"/api/order",         OrderHandler),
         (r"/api/delorder",      DelOrderHandler),
         (r"/api/allorder",      AllOrderHandler),
+        (r"/api/orders",        EachOrderHandler),
         (r"/api/user",          UserHandler),
         (r"/api/data/(.*)",     DataHandler),
     ], **settings)

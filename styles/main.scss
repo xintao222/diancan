@@ -98,17 +98,11 @@ body.loading .indicator {
 .order {
   width: 300px;
   padding: 0;
-  & > div {
-    display: block;
-    margin: 0 auto;
-    @include clearfix;
+  .group {
+    @include display-flex;
     .btn {
-      @include box-sizing(border-box);
-      width: 145px;
-      float: right;
-      &:nth-child(1) {
-        float: left;
-      }
+        @include flex(1);
+        margin: 0 3px;
     }
   }
   table {
