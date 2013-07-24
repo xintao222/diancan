@@ -115,18 +115,18 @@ class DelOrderHandler(BaseHandler):
             return
         cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
         cu = cx.cursor()
-        _cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
-        _cu = cx.cursor()
+        _cx = sqlite3.connect("/home/work/diancan/data/dinner2.db")
+        _cu = _cx.cursor()
         self.user = tornado.escape.json_decode(self.current_user)
         id = tornado.escape.xhtml_escape(self.user["email"])
         str_time = time.strftime("%Y%m%d", time.localtime())
         bid = base64.encodestring(id.encode("utf-8")).strip()
         day = int(str_time)
         c.delete("dinner:%s:%s" % (str_time, id))
-        cu.execute('delete from orders where id = ? and day =?', (bid, day))
-        cx.commit()
         _cu.execute('delete from orders where id = ? and day =?', (bid, day))
         _cx.commit()
+        cu.execute('delete from orders where id = ? and day =?', (bid, day))
+        cx.commit()
         return self.finish("successuflly delete %s's dinner"%id.split("@")[0])
 
 

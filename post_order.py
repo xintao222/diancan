@@ -14,7 +14,7 @@ import redis
 from hashlib import md5
 import zlib
 
-c = redis.Redis(host='127.0.0.1', port=6379, db=8)
+c = redis.Redis(host='127.0.0.1', port=6379, db=1)
 
 def fix():
     key = "dinner:rest:20130617:赛百味" 
@@ -75,11 +75,11 @@ def post():
         item['RestaurantName'] = key.split(":")[-1]
         rests.append(item)
 
-    for item in rests:
-        print item['RestaurantName']
-        for food in item['FoodItems']:
-            print food['FoodName']
-            print food['Quantity']
+    #for item in rests:
+    #    print item['RestaurantName'].encode("utf-8")
+    #    for food in item['FoodItems']:
+    #        print food['FoodName'].encode("utf-8")
+    #        print food['Quantity'].encode("utf-8")
 
     body['RestaurantItems'] = rests
     body_str = json.dumps(body)
@@ -104,8 +104,8 @@ def post():
     #print data.replace(" ", "")
 
     #url = "http://61.148.29.62:7080/ws/wandoujia.php"
-
     url = "http://boss.daojia.com.cn/ws/wandoujia.php"
+
     r = requests.post(url=url, data=data)
     result = r.text
     print result
