@@ -63,11 +63,14 @@ def get():
 
     r = requests.get(url=url, data=data)
     result = r.text
+    print result
     result = json.loads(result)
     #print json.dumps(result['Body']['RestaurantItems'],indent=4)
     for i in result['Body']['RestaurantItems']:
         rest = i['Restaurant']
         c.delete("dinner:data:%s"%rest)
+        if u"大嘴" in rest:
+            continue
         for j in i['FoodCatagoryItems']:
             menu = dict()
             dishes = list()
@@ -83,12 +86,10 @@ def get():
                 dish['price'] = int(dish['price']) * 100
                 if dish['price'] > 5000:
                     continue
-                print dish['price']
                 dishes.append(dish)
                 
             menu["dishes"] = dishes
             menu = json.dumps(menu)
-            print rest
             c.lpush("dinner:data:%s" % rest, menu)
 
 

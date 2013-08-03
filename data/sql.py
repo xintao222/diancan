@@ -1,9 +1,9 @@
 #!/usr/bin/python
 #-*-coding:utf-8-*-
 import sqlite3
-import helpers
 import base64
 import time
+import json
 
 
 def see():
@@ -82,7 +82,7 @@ def see():
         # cu.execute('select dish from orders where froms = "%s" group by dish'%froms)
         # print cu.fetchall()
 
-    all_list = helpers.json_encode(all_list)
+    all_list = json.dumps(all_list)
 
 
     # print cu.fetchall()
@@ -100,14 +100,13 @@ def dell():
 
 
 def orders():
-    json = '{"id": "zhida@wandoujia.com","order": [{"name":"麦乐鸡套餐","from":"mac","number": "1", "price": "1650"},{"name":"可乐","from":"kfc","number": "2","price": "800"}]}'
-    json = helpers.json_decode(json)
-    cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
+    data = '{"id": "zhida@wandoujia.com","order": [{"name":"麦乐鸡套餐","from":"mac","number": "1", "price": "1650"},{"name":"可乐","from":"kfc","number": "2","price": "800"}]}'
+    data = json.loads(data)
+    cx = sqlite3.connect("/home/work/diancan/data/dinner2.db")
     cu = cx.cursor()
-    id = json['id']
+    id = data['id']
     print id
     # print id
-    # print json['order']
     cu.execute(
         'create table orders (uid integer primary key autoincrement, id varchar(128),froms varchar(128),dish varchar(128),number integer, price integer, day integer)')
     # str_time = time.strftime("%Y%m%d", time.localtime())
@@ -128,6 +127,6 @@ def orders():
     # print cu.fetchall()
 
 if __name__ == '__main__':
-    # orders()
-    see()
+    orders()
+    #see()
     # dell()
