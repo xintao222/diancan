@@ -7,7 +7,7 @@
 # Description:
 #=======================================
 # import helpers
-from bs4 import BeautifulSoup
+from BeautifulSoup import BeautifulSoup
 # import BeautifulSoup
 import re
 from urllib import urlopen
@@ -48,7 +48,8 @@ def inputmenu(path):
     print path
     dinner = path.split('.')[0]
     print dinner
-    c = redis.Redis(host='127.0.0.1', port=6379, db=1)
+    #c = redis.Redis(host='127.0.0.1', port=6379, db=8)
+    c = redis.Redis(host='211.152.116.197', port=6379, db=8)
     c.delete("dinner:data:%s" % dinner)
     with open("%s" % path, "r") as data:
         webdata = data.read()

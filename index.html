@@ -185,10 +185,21 @@
             <div class="transform-container" data-bind="css: welcomeStatus">
               <div class="btn btn-primary btn-large greeting" data-bind="text: '订饭了，' + user.name()"></div>
               <div class="btn btn-primary btn-large loading">LOADING...</div>
-              <a href="/api/login" class="btn btn-primary btn-large signin">
+              <a href="/api/Googlelogin" class="btn btn-primary btn-large signin">
                 <i class="icon-google-plus-sign icon-large icon-white"></i> Google Account 登录
               </a>
             </div>
+
+            <h5> </h5>
+
+            <div class="transform-container" data-bind="css: welcomeStatus">
+              <div class="btn btn-primary btn-large greeting" data-bind="text: '订饭了，' + user.name()"></div>
+              <div class="btn btn-primary btn-large loading">LOADING...</div>
+              <a href="/api/login" class="btn btn-primary btn-large signin">
+                <i class="icon-google-plus-sign icon-large icon-white"></i> LDAP Account 登录
+              </a>
+            </div>
+ 
           </div>
         </div>
 
@@ -196,7 +207,7 @@
             window.HOST = '//f.wandoulabs.com';
         </script>
 
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+        <script defer src="/static/js/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="scripts/vendor/8bc61845.jquery.min.js"><\/script>')</script>
 
 

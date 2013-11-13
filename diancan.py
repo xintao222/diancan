@@ -9,6 +9,10 @@ import tornado.auth
 import tornado.escape
 from tornado.options import define, options
 
+#from google_oauth2 import GoogleOath2Mixin
+
+from ldap_auth import Auth
+
 import redis
 import sqlite3
 import time
@@ -16,21 +20,21 @@ import base64
 import urllib2
 import json
 
-c = redis.Redis(host='127.0.0.1', port=6379, db=8)
+c = redis.Redis(host='211.152.116.197', port=6379, db=8)
 
-our_list = ["嘉禾一品",
-            "永和豆浆",
+our_list = ["永和大王",
             "和合谷",
             "吉野家",
-            "康师傅",
+            "康师傅私房牛肉面",
             "肯德基",
             "麦当劳",
             "必胜客",
             "正一味",
             "真功夫",
-            "三笑",
+            "一品三笑",
             "成都冒菜粉",
-            "大嘴梁锅贴",
+            "大嘴梁锅贴粥铺",
+            "嘉禾一品",
             "鸿毛饺子"]
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -58,6 +62,20 @@ class MainHandler(BaseHandler):
         self.write("Hello, " + name + ", my email is " + email)
 
 
+class OauthHandler(BaseHandler):
+
+    @tornado.web.authenticated
+    def get(self):
+        if not self.current_user:
+            self.write("current_user is none")
+            return
+        user = tornado.escape.json_decode(self.current_user)
+
+        self.set_secure_cookie("user", tornado.escape.json_encode(user))
+        self.redirect("/")
+
+
+
 class AllHandler(BaseHandler):
 
     @tornado.web.authenticated
@@ -73,22 +91,23 @@ class AllHandler(BaseHandler):
             data.append(rest)
         data = json.dumps(data)
         self.set_header("Content-Type", "application/json")
-        # self.set_header("Access-Control-Allow-Origin", "*")
         return self.finish(data)
 
-
+ 
 class GoogleAuthLoginHandler(tornado.web.RequestHandler, tornado.auth.GoogleMixin):
 
     @tornado.web.asynchronous
     def get(self):
         if self.get_argument("openid.mode", None):
+            #user = yield self.get_authenticated_user()
             self.get_authenticated_user(self.async_callback(self._on_auth))
         else:
+            #yield self.authenticate_redirect()
             self.authenticate_redirect()
 
     def _on_auth(self, user):
         if not user:
-            raise tornado.web.HTTPError(500, "Google auth failed")
+            raise tornado.web.HTTPError(500, "Google auth failed, no user data return")
         self.set_secure_cookie("user", tornado.escape.json_encode(user))
         self.redirect("/")
 
@@ -156,7 +175,14 @@ class OrderHandler(BaseHandler):
         all = json.dumps(all)
         return self.finish(all)
 
+    @tornado.web.authenticated
     def post(self):
+        if not self.current_user:
+            raise tornado.web.HTTPError(403)
+            return
+        self.user = tornado.escape.json_decode(self.current_user)
+        id = tornado.escape.xhtml_escape(self.user["email"])
+ 
         cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
         cu = cx.cursor()
         _cx = sqlite3.connect("/home/work/diancan/data/dinner2.db")
@@ -164,12 +190,11 @@ class OrderHandler(BaseHandler):
         data = self.get_argument('json')
         data = urllib2.unquote(data)
         data = json.loads(data)
-        id = data['id']
         if id.split("@")[1] != "wandoujia.com":
             raise tornado.web.HTTPError(403)
             return
         dead = int(time.strftime("%H%M", time.localtime()))
-        if dead >= 1600:
+        if dead >= 1602:
             raise tornado.web.HTTPError(403)
             return
 
@@ -189,7 +214,7 @@ class OrderHandler(BaseHandler):
             添加每个人每天的菜单
             '''
             li = json.dumps(i)
-            c.lpush("dinner:%s:%s" % (str_time, data['id']), li)
+            c.lpush("dinner:%s:%s" % (str_time, id), li)
             if rname.encode("utf-8") in our_list:
                 cu.execute(
                     'insert into orders (id,froms,dish,number,price,day) values(?,?,?,?,?,?)',
@@ -200,7 +225,6 @@ class OrderHandler(BaseHandler):
                     'insert into orders (id,froms,dish,number,price,day) values(?,?,?,?,?,?)',
                     (bid, froms, dish, number, price, day))
                 _cx.commit()
-        # self.set_header("Access-Control-Allow-Origin", "*")
         return self.finish("ok")
 
 
@@ -283,6 +307,79 @@ class AllOrder2Handler(tornado.web.RequestHandler):
         return self.render('daojia.html', li=all_list, p=npeople,)
 
 
+class TheOrderHandler(tornado.web.RequestHandler):
+
+    def get(self):
+        cx = sqlite3.connect("/home/work/diancan/data/dinner.db")
+        cx.text_factory = str
+        cu = cx.cursor()
+        str_time = time.strftime("%Y%m%d", time.localtime())
+        str_time = "20130815"
+
+        all_froms = []
+        cu.execute('select froms from orders where day = "%s"' % str_time)
+        for i in cu.fetchall():
+            all_froms.append(i[0])
+
+        all_froms = list(set(all_froms))
+        all_list = []
+        for i in all_froms:
+            all = {}
+            froms = i
+            all['from'] = base64.decodestring(froms).decode('utf-8')
+            cu.execute(
+                'select sum(o.price*o.number) from orders o where o.day = "%s" and o.froms = "%s"' %
+                (str_time, froms))
+            price = cu.fetchall()[0][0]
+            all['price'] = str(int(price) / 100)
+            orders = []
+            cu.execute(
+                'select dish,sum(number) from orders where day = "%s" and froms = "%s" group by dish' %
+                (str_time, froms))
+            for j in cu.fetchall():
+                order = {}
+                dish = j[0]
+                order['dish'] = base64.decodestring(j[0]).decode('utf-8')
+                number = j[1]
+                order['number'] = number
+                people = []
+                cu.execute(
+                    'select id from orders where day = "%s" and froms = "%s" and dish = "%s"' %
+                    (str_time, froms, dish))
+                for k in cu.fetchall():
+                    people.append(base64.decodestring(k[0]).decode('utf-8'))
+                people = list(set(people))
+                rpeople = []
+                for p in people:
+                    realname = c.get("dinner:cname:%s" % p)
+                    if realname:
+                        rpeople.append(realname)
+                    else:
+                        rpeople.append(p.split("@")[0])
+                order['people'] = rpeople
+                orders.append(order)
+            all['order'] = orders
+            all_list.append(all)
+
+        _people = c.keys("dinner:cname:*")
+        npeople = []
+        for p in _people:
+            mail = p.split(":")[2]
+            flag = c.exists("dinner:%s:%s" % (str_time, mail))
+            if flag:
+                continue
+            else:
+                if mail.split("@")[1] == "wandoujia.com":
+                    _name = c.get("dinner:cname:%s" % mail)
+                    if _name:
+                        npeople.append(_name)
+                    else:
+                        npeople.append(mail.split("@")[0])
+
+        self.set_header("Content-Type", "text/html")
+        return self.render('all.html', li=all_list, p=npeople,)
+
+
 class AllOrderHandler(tornado.web.RequestHandler):
 
     def get(self):
@@ -355,9 +452,40 @@ class AllOrderHandler(tornado.web.RequestHandler):
         return self.render('all.html', li=all_list, p=npeople,)
 
 
+class LoginHandler(tornado.web.RequestHandler):
+
+    def get(self):
+        return self.render('login.html')
+
+
+class AuthHandler(tornado.web.RequestHandler):
+
+    def post(self):
+
+        mail = self.get_argument('mail')
+        type = self.get_argument('type',None)
+        if mail.endswith("@wandoujia.com"):
+            mail = mail.strip("@wandoujia.com")
+        passwd = self.get_argument("passwd")
+        if Auth(mail,passwd):
+            user = dict()
+            user['email'] = mail + "@wandoujia.com"
+            self.set_secure_cookie("user", json.dumps(user))
+            if type:
+                return self.finish(json.dumps({"ret":1}))
+            else:
+                self.redirect("/")
+        else:
+            if type:
+                return self.finish(json.dumps({"ret":0}))
+            else:
+                return self.render('login_failed.html')
+
+
 class EachOrderHandler(tornado.web.RequestHandler):
 
     def get(self):
+        type = self.get_argument("type",None)
         str_time = time.strftime("%Y%m%d", time.localtime())
         keys = c.keys("dinner:%s:*"%str_time)
         dinner = list()
@@ -370,10 +498,15 @@ class EachOrderHandler(tornado.web.RequestHandler):
             person = dict() 
             person['order'] = order
             person['name'] = c.get("dinner:cname:%s"%id)
+            person['id'] = id
+
             dinner.append(person)
 
         self.set_header("Content-Type", "text/html")
-        return self.render('order.html', all=dinner)
+        if type:
+            return self.finish(json.dumps(dinner))
+        else:
+            return self.render('order.html', all=dinner)
 
 
 class UserHandler(BaseHandler):
@@ -383,8 +516,12 @@ class UserHandler(BaseHandler):
         if not self.current_user:
             raise tornado.web.HTTPError(403)
             return
-        self.user = tornado.escape.json_decode(self.current_user)
-        email = tornado.escape.xhtml_escape(self.user["email"])
+        self.user = json.loads(self.current_user)
+        email = self.user["email"]
+        if "@" not in email:
+            self.clear_cookie("user")
+            self.redirect("/")
+
         name = c.get("dinner:cname:%s" % email)
         user = {}
         if name:
@@ -396,8 +533,19 @@ class UserHandler(BaseHandler):
         self.set_header("Content-Type", "application/json")
         return self.finish(user)
 
+    @tornado.web.authenticated
     def post(self):
-        id = self.get_argument('id')
+        if not self.current_user:
+            raise tornado.web.HTTPError(403)
+            return
+        #self.user = tornado.escape.json_decode(self.current_user)
+        #self.user = self.current_user
+        self.user = json.loads(self.current_user)
+        id = self.user["email"]
+        
+        if "@" not in id:
+            self.clear_cookie("user")
+            self.redirect("/")
         name = self.get_argument('name')
         if not name:
             c.delete("dinner:cname:%s" % id)
@@ -421,25 +569,43 @@ class NotFoundHandler(tornado.web.RequestHandler):
         NOTFOUND_404 = "404.html"
         self.render(NOTFOUND_404)
 
+class NotifyHandler(tornado.web.RequestHandler):
+
+    def post(self):
+        self.finish("ok")
+        return
+ 
 
 def main():
     define("port", default=8080, help="run on the given port", type=int)
     settings = {
         "debug": True, "template_path": "templates",
-        "static_path": "static", "login_url": "/api/login",
-        "cookie_secret": "Zz1DAVh+WTvyqpWGmOtJCQLETQYUznEuYskSF062J0To=", }
+        "static_path": "static",
+        "login_url": "/api/login",
+        "cookie_secret": "Zxz1DAVh+WTvyqpWGmOtJCQLETQYUznEuYskSF062J0Too=", 
+        #"redirect_uri": "http://fan.wandoulabs.com/api/oauth",
+        "google_consumer_key": "36032040358.apps.googleusercontent.com",
+        "google_consumer_secret": "7fkXd8MEaYr0DLLaO18BkiE3",
+        #"google_permissions": "https://mail.google.com/ https://www.google.com/m8/feeds",
+        #"google_permissions": "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
+        }
     tornado.options.parse_command_line()
     application = tornado.web.Application([
         (r"/",                  IndexHandler),
-        (r"/api/login",         GoogleAuthLoginHandler),
+        #(r"/",                  MainHandler),
+        (r"/api/Googlelogin",   GoogleAuthLoginHandler),
+        (r"/api/login",         LoginHandler),
+        (r"/api/auth",          AuthHandler),
         (r"/api/logout",        LogoutHandler),
         (r"/api/all",           AllHandler),
         (r"/api/order",         OrderHandler),
         (r"/api/delorder",      DelOrderHandler),
         (r"/api/allorder",      AllOrderHandler),
+        (r"/api/theorder",      TheOrderHandler),
         (r"/api/allorder2",     AllOrder2Handler),
         (r"/api/orders",        EachOrderHandler),
         (r"/api/user",          UserHandler),
+        (r"/api/notify",        NotifyHandler),
         (r"/api/data/(.*)",     DataHandler),
     ], **settings)
     http_server = tornado.httpserver.HTTPServer(application)

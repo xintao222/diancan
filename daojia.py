@@ -55,22 +55,26 @@ def post():
 
 def get():
     data = '{"Command":"GetRestaurantInfo","SequenceID":"1213","CheckDigit":1422901767,"Body":{}}'
-    c = redis.Redis(host='127.0.0.1', port=6379, db=8)
+    #c = redis.Redis(host='127.0.0.1', port=6379, db=8)
+    c = redis.Redis(host='211.152.116.197', port=6379, db=8)
 
     # print data['Body']
-    url = "http://boss.daojia.com.cn/ws/wandoujia.php"
+    #url = "http://boss.daojia.com.cn/ws/wandoujia.php"
+    url = "http://admin.daojia.com.cn/ws/wandoujia.php"
     #url = "http://61.148.29.62:7080/ws/wandoujia.php"
 
     r = requests.get(url=url, data=data)
     result = r.text
-    print result
+
     result = json.loads(result)
-    #print json.dumps(result['Body']['RestaurantItems'],indent=4)
+    #print json.dumps(result,indent=4)
+    #return
     for i in result['Body']['RestaurantItems']:
         rest = i['Restaurant']
+        print rest
         c.delete("dinner:data:%s"%rest)
-        if u"大嘴" in rest:
-            continue
+        #if u"大嘴" in rest:
+        #    continue
         for j in i['FoodCatagoryItems']:
             menu = dict()
             dishes = list()
