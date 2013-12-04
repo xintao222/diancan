@@ -16,33 +16,6 @@ import zlib
 
 c = redis.Redis(host='127.0.0.1', port=6379, db=1)
 
-def fix():
-    key = "dinner:rest:20130617:赛百味" 
-    name = "6寸金枪鱼三明治"
-    item = c.hget(key, name)
-    print item
-    item = eval(item)
-    item['Quantity'] = 4.0
-    c.hset(key, name, item)
-
-    #key = "dinner:rest:20130617:土大力" 
-    #name = "石锅牛肉饭"
-    #item = c.hget(key, name)
-    #print item
-    #item = eval(item)
-    #item['Quantity'] = 2.0
-    #print item
-    #c.hset(key, name, item)
-
-    #key = "dinner:rest:20130617:土大力" 
-    #name = "精品烤五花肉"
-    #item = c.hget(key, name)
-    #print item
-    #item = eval(item)
-    #item['Quantity'] = 3.0
-    #print item
-    #c.hset(key, name, item)
-
 
 def post():
     str_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
@@ -50,8 +23,6 @@ def post():
     body = dict()
     body['Name'] = u"潘莹"
     body['Address'] = u"北京西城区新街口外大街28号A座302"
-    body['Mobile'] = "13693520869"
-    #body['Mobile'] = "15910968935"
     body['DeliverTime'] = str_time + u" 17:30"
     body['Invoice'] = u"豌豆荚"
 
@@ -75,12 +46,6 @@ def post():
         item['RestaurantName'] = key.split(":")[-1]
         rests.append(item)
 
-    #for item in rests:
-    #    print item['RestaurantName'].encode("utf-8")
-    #    for food in item['FoodItems']:
-    #        print food['FoodName'].encode("utf-8")
-    #        print food['Quantity'].encode("utf-8")
-
     body['RestaurantItems'] = rests
     body_str = json.dumps(body)
 
@@ -95,15 +60,7 @@ def post():
     data['SequenceID'] = "11"
     data['CheckDigit'] = crc
     data['Body'] = body
-    #data['Body'] = body_str
-    #print json.dumps(data, indent=4)
     data = json.dumps(data)
-    #data = data.replace(" ", "")
-    #print data
-    #data = str(data)
-    #print data.replace(" ", "")
-
-    #url = "http://61.148.29.62:7080/ws/wandoujia.php"
     url = "http://boss.daojia.com.cn/ws/wandoujia.php"
 
     r = requests.post(url=url, data=data)
