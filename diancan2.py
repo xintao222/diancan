@@ -22,7 +22,7 @@ import urllib2
 import urllib
 import json
 
-c = redis.Redis(host='211.152.116.197', port=6379, db=8)
+c = redis.Redis(host='10.0.25.74', port=6379, db=8)
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -140,8 +140,8 @@ class DelOrderHandler(BaseHandler):
         http_client = tornado.httpclient.AsyncHTTPClient()
         response = yield tornado.gen.Task(http_client.fetch, url, method="POST",body=params)
         resp = json.loads(response.body)
-        if not resp['status']:
-            raise tornado.web.HTTPError(403)
+        if resp['status'] <= 0:
+            raise tornado.web.HTTPError(403,(response.body).encode("utf-8"))
             return
 
         str_time = time.strftime("%Y%m%d", time.localtime())
@@ -219,9 +219,13 @@ class OrderHandler(BaseHandler):
         http_client = tornado.httpclient.AsyncHTTPClient()
         response = yield tornado.gen.Task(http_client.fetch, url, method="POST",body=params)
         resp = json.loads(response.body)
-        if not resp['status']:
+        self.write(response.body)
+        if resp['status'] <= 0 and resp['status'] != -5 :
+            raise tornado.web.HTTPError(403,(response.body).encode("utf-8"))
+            return
+        elif resp['status'] == -5:
             raise tornado.web.HTTPError(403)
- 
+            return
 
         for i in data['order']:
             rname = i['from']

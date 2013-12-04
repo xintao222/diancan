@@ -7,4 +7,4 @@ Filename: config.py
 Description: 
 """
 REDIS_DB = "8"
-REDIS_HOST = "211.152.116.197"
+REDIS_HOST = "10.0.25.74"

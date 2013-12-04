@@ -14,7 +14,7 @@ import json
 import sys
 
 REDIS_DB = "8"
-REDIS_HOST = "211.152.116.197"
+REDIS_HOST = "10.0.25.74"
 
 c = redis.Redis(host=REDIS_HOST, port=6379, db=REDIS_DB)
 

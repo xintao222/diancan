@@ -20,7 +20,7 @@ import base64
 import urllib2
 import json
 
-c = redis.Redis(host='211.152.116.197', port=6379, db=8)
+c = redis.Redis(host='10.0.25.74', port=6379, db=8)
 
 our_list = ["永和大王",
             "和合谷",
@@ -34,6 +34,7 @@ our_list = ["永和大王",
             "一品三笑",
             "成都冒菜粉",
             "大嘴梁锅贴粥铺",
+            "大嘴梁锅贴",
             "嘉禾一品",
             "鸿毛饺子"]
 

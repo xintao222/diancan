@@ -49,7 +49,7 @@ def inputmenu(path):
     dinner = path.split('.')[0]
     print dinner
     #c = redis.Redis(host='127.0.0.1', port=6379, db=8)
-    c = redis.Redis(host='211.152.116.197', port=6379, db=8)
+    c = redis.Redis(host='10.0.25.74', port=6379, db=8)
     c.delete("dinner:data:%s" % dinner)
     with open("%s" % path, "r") as data:
         webdata = data.read()

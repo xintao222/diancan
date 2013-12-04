@@ -45,7 +45,7 @@ if __name__ == "__main__":
         print "holiday"
         sys.exit(0)
 
-    text = "hi，\n加快订餐速度吧，4点就截止啦。\n 订餐地址: http://fan.wandoulabs.com"
+    text = "hi，\n加快订餐速度吧，五点截止，现在就订餐吧。\n 订餐地址: http://fan.wandoulabs.com"
     subject = "晚饭是人生大事"
     to = list()
     for p in people:

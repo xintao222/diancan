@@ -70,7 +70,7 @@ def post():
 
 
 def get():
-    c = redis.Redis(host='211.152.116.197', port=6379, db=8)
+    c = redis.Redis(host='10.0.25.74', port=6379, db=8)
 
     url = "http://api.meican.com/corps/wandoujia/getmenu"
 
@@ -78,10 +78,11 @@ def get():
     result = r.text
 
     result = json.loads(result)
-    #for key in c.keys("dinner:data:*"):
-    #    c.delete(key)
+    for key in c.keys("dinner:data:*"):
+        c.delete(key)
     for i in result:
         rest = i['restaurant']
+
         #if not rest.encode("utf-8") in our_list:
             #print rest
         #    continue 
@@ -94,11 +95,6 @@ def get():
         #    print rest
         #continue
             #c.delete("dinner:data:%s"%rest)
-        if rest == u"大嘴梁锅贴粥铺":
-            print rest
-            c.delete("dinner:data:%s"%rest)
-        else:
-            continue
         for j in i['food_category_items']:
             menu = dict()
             dishes = list()
@@ -134,9 +130,39 @@ def delorder():
     _result = json.loads(result)
     for k,v in _result.items():
         print k,v
-def check():
-    c = redis.Redis(host='127.0.0.1', port=6379, db=8)
 
+def fix():
+    c = redis.Redis(host='10.0.25.74', port=6379, db=8)
+    url = "http://api.meican.com/corps/wandoujia/getallmemberorders"
+    import time
+    timestamp = str(int(time.time()))
+    data = dict()
+    data['timestamp'] = timestamp
+    data['signature'] = sign(timestamp)
+    r = requests.post(url=url, data=data)
+    result = json.loads(r.text)
+    users = set()
+    for rest in result['result_list']:
+        for o in rest['order_content']:
+            for i in o['user_list']:
+                id = i['id']
+                users.add(id)
+    for key in c.keys("dinner:20131120:*"):
+        id = key.split(":")[-1]
+        if id in users:
+            continue
+        else:
+            print id
+
+        
+
+    #    order = dict()
+    #    url = url + id
+    #    
+    #    print r.text
+        #result[]
+        #if "message" in result:
+        #    print result['message']
 
 
 if __name__ == "__main__":
@@ -144,3 +170,4 @@ if __name__ == "__main__":
     get()
     # test()
     #delorder()
+    #fix()
