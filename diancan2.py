@@ -416,7 +416,7 @@ class AuthHandler(tornado.web.RequestHandler):
         passwd = self.get_argument("passwd")
         if Auth(mail,passwd):
             user = dict()
-            user['email'] = mail + "@wandoujia.com"
+            user['email'] = mail.lower() + "@wandoujia.com"
             self.set_secure_cookie("user", json.dumps(user))
             if type:
                 return self.finish(json.dumps({"ret":1}))

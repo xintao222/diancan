@@ -35,3 +35,6 @@ if __name__ == "__main__":
         msg = json.loads(msg)
         subject = "吃晚饭啦"
         send(msg['mail'],subject,msg['text'])
+        with open("/home/work/diancan/logs/send.log","a") as f:
+            str_time = time.strftime("%Y%m%d", time.localtime())
+            f.write(str_time + " " + msg['mail'] + "\n")
